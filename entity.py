@@ -31,8 +31,17 @@ class Entity(pygame.sprite.Sprite):
             self.direction.x = 0
 
     def update(self, grid):
-        self.currentCell = grid.getCell(self.rect.center)
-        print(self.currentCell.terrainType)
+
+        self.cellCurrent = grid.getCell(self.rect.center)
+        self.cellNorth = grid.cells[self.cellCurrent.rect.center[0], self.cellCurrent.rect.center[1] - 1]
+        self.cellNorthEast = grid.cells[self.cellCurrent.rect.center[0] + 1, self.cellCurrent.rect.center[1] - 1]
+        self.cellEast = grid.cells[self.cellCurrent.rect.center[0] + 1, self.cellCurrent.rect.center[1]]
+        self.cellSouthEast = grid.cells[self.cellCurrent.rect.center[0] + 1, self.cellCurrent.rect.center[1] + 1]
+        self.cellSouth = grid.cells[self.cellCurrent.rect.center[0], self.cellCurrent.rect.center[1] + 1]
+        self.cellSouthWest = grid.cells[self.cellCurrent.rect.center[0] -1, self.cellCurrent.rect.center[1] + 1]
+        self.cellWest = grid.cells[self.cellCurrent.rect.center[0] - 1, self.cellCurrent.rect.center[1]]
+        self.cellNorthWest = grid.cells[self.cellCurrent.rect.center[0] - 1, self.cellCurrent.rect.center[1] - 1]
+        print(f"currentCell = {self.cellCurrent.terrainType}, northCell = {self.cellNorth.terrainType}, cellNorthWest = {self.cellNorthWest.terrainType}")
         self.move()
         self.rect.center += self.direction * self.moveSpeed
 
