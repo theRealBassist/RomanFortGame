@@ -1,7 +1,7 @@
 TERRAIN_TILESHEET = "assets/sprites/terrain/overworld.png"
 
-WINDOW_WIDTH    = 1280
-WINDOW_HEIGHT   = 720
+WINDOW_WIDTH    = 640
+WINDOW_HEIGHT   = 480
 WORLD_WIDTH     = 2500
 WORLD_HEIGHT    = 2500
 TILESIZE        = 16       # tile width/height in pixels in tilesheet

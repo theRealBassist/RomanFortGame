@@ -81,16 +81,29 @@ class Grid:
                     tileIndex += 2 ** power
         return tileIndex
     
-    def getCell(self, pos, gridPos):
-        x = -1
-        y = -1
+    def getNearbyCells(self, gridPos, x = -1, y = -1, nearbyCells = []):
+        if x == 1 & y == 1:
+            return nearbyCells
+        
+        nearbyCellsCurrent = nearbyCells
+        nearbyCellsCurrent.append(self.cells[gridPos[0] + x, gridPos[1] + y])
+        if x < 1: x += 1
+        if y < 1: y += 1
+        
+        return self.getNearbyCells(gridPos, x, y, nearbyCellsCurrent)
+        
 
+    def getCellRecursive(self, pos, gridPos, minimum = (9999999999, 0)):
+        x, y = -1, -1
         nearbyCells = []
         while x <= 1:
             while y <= 1:
                 nearbyCells.append(self.cells[gridPos[0] + x, gridPos[1] + y])
                 y += 1
             x += 1
+
+    def getCell(self, pos, gridPos):
+        nearbyCells = self.getNearbyCells(gridPos)
 
         vectorPos = pygame.math.Vector2(pos[0], pos[1])
         minimum = (9999999999, 0)
