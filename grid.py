@@ -110,21 +110,6 @@ class Grid:
         nearestCell = self.getCellRecursive(vectorPos, nearbyCells, 0)
         return nearestCell
 
-        # vectorPos = pygame.math.Vector2(pos[0], pos[1])
-        # minimum = (9999999999, 0)
-        # for cell in nearbyCells:
-        #     cellPixelPos = cell.getPixelLocation()
-        #     cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
-        #     distance = vectorPos.distance_to(cellVectorPos)
-        #     if minimum[0] > distance: 
-        #         minimum = (distance, cell)
-        # return minimum[1]
-
-    # def getCellGroup(self):
-    #     cells = pygame.sprite.Group()
-    #     for cell in self.cells:
-    #         cells.add(self.cells[cell])
-    #     return cells
 
 
 class Cell(pygame.sprite.Sprite):

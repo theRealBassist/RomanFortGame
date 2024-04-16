@@ -15,7 +15,7 @@ class Entity(pygame.sprite.Sprite):
         self.gridPos = (int(pos[0] / TILESIZE), int(pos[1] / TILESIZE))
     
     def move(self, grid):
-        # Todo: Instead of just saying you can't go in the grid square, check for collisions
+        # Todo: It seems that diagonal movement is causing the ongoing collision issues. 
 
         keys = pygame.key.get_pressed()
 
