@@ -37,11 +37,11 @@ if __name__ == "__main__":
                 running = False
             
         cameraGroup.customDraw(grid.currentImage, player)
-        cameraGroup.update(grid)
+        cameraGroup.update(grid, dt)
 
         pygame.display.update()
 
-        clock.tick(60)
+        dt = clock.tick(60) / 1000
 
     pygame.quit()
 

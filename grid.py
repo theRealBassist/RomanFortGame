@@ -1,6 +1,6 @@
 import pygame
-import math
 from spritesheet import Spritesheet
+import math
 from config import *
 
 class Grid:
@@ -34,7 +34,9 @@ class Grid:
                     if terrainType in tileCornerTypes:
                         tileIndex = self.getTileIndexForType(tileCornerTypes, terrainType)
                         image = self.terrainTiles[terrainType][tileIndex]
-                        cell = Cell(TILESIZE, (x, y), image, terrainType)
+                        impassable = False
+                        if terrainType >= 5 or terrainType < 3 : impassable = True
+                        cell = Cell(TILESIZE, (x, y), image, terrainType, impassable)
                         self.cells[(x, y)] = cell
                         break
                 self.displaySurface.blit(image, (x * TILESIZE, y * TILESIZE))
@@ -48,8 +50,17 @@ class Grid:
         return tileIndex
     
     def getCell(self, pos):
-        cellLocation = (math.floor(pos[0] / TILESIZE), math.floor(pos[1] / TILESIZE))
-        return self.cells[cellLocation]
+        vectorPos = pygame.math.Vector2(pos[0], pos[1])
+        minimum = (9999999999, 0)
+        for cell in self.cells:
+            cellPixelPos = self.cells[cell].getPixelLocation()
+            cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
+            distance = vectorPos.distance_to(cellVectorPos)
+            if minimum[0] > distance: 
+                minimum = (distance, self.cells[cell])
+        
+        print(f"Minimum distane is {minimum[0]}")
+        return minimum[1]
 
     # def getCellGroup(self):
     #     cells = pygame.sprite.Group()
@@ -59,15 +70,16 @@ class Grid:
 
 
 class Cell(pygame.sprite.Sprite):
-    def __init__(self, size, pos, image, terrainType):
+    def __init__(self, size, pos, image, terrainType, impassable):
         self.size = size
         self.terrainType = terrainType
         self.image = image.convert()
         self.rect = self.image.get_rect(center = pos)
+        self.impassable = impassable
         pygame.sprite.Sprite.__init__(self)
     
     def getGridLocation(self):
         return (self.rect.center)
 
     def getPixelLocation(self):
-        return ((self.rect.center.x * TILESIZE, self.rect.center.y * TILESIZE))
+        return ((self.rect.center[0] * TILESIZE, self.rect.center[1] * TILESIZE))
