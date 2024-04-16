@@ -1,5 +1,6 @@
 import pygame
 from spritesheet import Spritesheet
+from config import *
 
 class Entity(pygame.sprite.Sprite):
 
@@ -47,5 +48,5 @@ class Roman(Entity):
     def __init__(self, name, pos):
         romanSpriteSheet = Spritesheet("assets/sprites/roman_test/blue/blue.png")
         image = romanSpriteSheet.parseSprite("Walk/Walk_South_0.png").convert()
-        Entity.__init__(self, name, image, pos, 100)
+        Entity.__init__(self, name, image, pos, 90)
         
