@@ -11,6 +11,7 @@ class Entity(pygame.sprite.Sprite):
         self.moveSpeed = moveSpeed
         self.direction = pygame.math.Vector2()
         self.rect = self.image.get_rect(center = pos) 
+        self.gridPos = (int(pos[0] / TILESIZE), int(pos[1] / TILESIZE))
     
     def move(self, grid):
         # Todo: Implement checking of tile types in front of and under the target.
@@ -39,7 +40,9 @@ class Entity(pygame.sprite.Sprite):
 
     def update(self, grid, dt):
 
-        self.cellCurrent = grid.getCell(self.rect.center)
+        self.gridPos = (int(self.rect.center[0] / TILESIZE), int(self.rect.center[1] / TILESIZE))
+
+        self.cellCurrent = grid.getCell(self.rect.center, self.gridPos)
 
         self.move(grid)
         self.rect.center += self.direction * self.moveSpeed * dt

@@ -49,18 +49,29 @@ class Grid:
                     tileIndex += 2 ** power
         return tileIndex
     
-    def getCell(self, pos):
+    def getCell(self, pos, gridPos):
+        x = -1
+        y = -1
+
+        nearbyCells = []
+        while x <= 1:
+            while y <= 1:
+                nearbyCells.append(self.cells[gridPos[0] + x, gridPos[1] + y])
+                y += 1
+            x += 1
+
         vectorPos = pygame.math.Vector2(pos[0], pos[1])
         minimum = (9999999999, 0)
-        for cell in self.cells:
-            cellPixelPos = self.cells[cell].getPixelLocation()
+        for cell in nearbyCells:
+            cellPixelPos = cell.getPixelLocation()
             cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
             distance = vectorPos.distance_to(cellVectorPos)
             if minimum[0] > distance: 
-                minimum = (distance, self.cells[cell])
+                minimum = (distance, cell)
         
-        print(f"Minimum distane is {minimum[0]}")
         return minimum[1]
+
+        return self.cells[pos]
 
     # def getCellGroup(self):
     #     cells = pygame.sprite.Group()

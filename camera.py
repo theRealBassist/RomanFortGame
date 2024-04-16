@@ -56,7 +56,7 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = self.cameraRect.left - self.cameraBorders["left"]
         self.offset.y = self.cameraRect.top - self.cameraBorders["top"]
     
-    def customDraw(self, surface, player):
+    def customDraw(self, surface):
 
         #self.centerTargetCamera(player)
         #self.boxTargetCamera(player)

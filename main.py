@@ -36,12 +36,13 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
             
-        cameraGroup.customDraw(grid.currentImage, player)
+        cameraGroup.customDraw(grid.currentImage)
         cameraGroup.update(grid, dt)
 
         pygame.display.update()
-
-        dt = clock.tick(60) / 1000
+        print(clock.get_fps())
+        dt = clock.tick(120) / 1000
+        #clock.tick(60)
 
     pygame.quit()
 
