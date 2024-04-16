@@ -26,7 +26,7 @@ class Entity(pygame.sprite.Sprite):
         elif keys[pygame.K_DOWN]:
             cellSouth = grid.cells[self.cellCurrent.rect.center[0], self.cellCurrent.rect.center[1] + 1]
             if not cellSouth.impassable : self.direction.y = 1
-            elif not self.rect.colliderect(cellSouth.rect): self.direction.y = -1
+            elif not self.rect.colliderect(cellSouth.rect): self.direction.y = 1
         else:
             self.direction.y = 0
 
@@ -34,11 +34,11 @@ class Entity(pygame.sprite.Sprite):
         if keys[pygame.K_LEFT]:
             cellWest = grid.cells[self.cellCurrent.rect.center[0] - 1, self.cellCurrent.rect.center[1]]
             if not cellWest.impassable : self.direction.x = -1
-            elif not self.rect.colliderect(cellWest.rect): self.direction.y = -1
+            elif not self.rect.colliderect(cellWest.rect): self.direction.x = -1
         elif keys[pygame.K_RIGHT]:
             cellEast = grid.cells[self.cellCurrent.rect.center[0] + 1, self.cellCurrent.rect.center[1]]
             if not cellEast.impassable : self.direction.x = 1
-            elif not self.rect.colliderect(cellEast.rect): self.direction.y = -1
+            elif not self.rect.colliderect(cellEast.rect): self.direction.x = 1
         else:
             self.direction.x = 0
 
