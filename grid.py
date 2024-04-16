@@ -4,7 +4,7 @@ import math
 from config import *
 
 class Grid:
-    def __init__(self, screen):
+    def __init__(self):
         self.displaySurface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT))
         self.tileSheet = pygame.image.load(TERRAIN_TILESHEET)
         self.cells = dict()
