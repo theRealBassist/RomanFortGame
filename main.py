@@ -46,7 +46,7 @@ if __name__ == "__main__":
         pygame.display.update()
         #print(clock.get_fps())
         dt = clock.tick(120) / 1000
-        #clock.tick(60)
+
 
     pygame.quit()
 
