@@ -2,11 +2,13 @@ import pygame
 from spritesheet import Spritesheet
 import math
 from config import *
+from spritesheet import Spritesheet
 
 class Grid:
     def __init__(self):
         self.displaySurface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT))
         self.tileSheet = pygame.image.load(TERRAIN_TILESHEET)
+        #self.spriteSheet = Spritesheet(TERRAIN_TILESHEET) 
         self.cells = dict()
         self.terrainTiles = []
         self.currentImage = self.displaySurface.copy()
@@ -29,6 +31,21 @@ class Grid:
                 tileCornerTypes.append(terrainTileMap[y + 1][x])
                 tileCornerTypes.append(terrainTileMap[y][x + 1])
                 tileCornerTypes.append(terrainTileMap[y][x])
+
+                # surroundingTiles = {
+                #     "B"     : terrainTileMap[y + 1][x],
+                #     "BL"    : terrainTileMap[y + 1][x - 1],
+                #     "L"     : terrainTileMap[y][x - 1],
+                #     "TL"    : terrainTileMap[y - 1][x - 1],
+                #     "T"     : terrainTileMap[y - 1][x],
+                #     "TR"    : terrainTileMap[y - 1][x + 1],
+                #     "R"     : terrainTileMap[y][x + 1],
+                #     "BR"    : terrainTileMap[y - 1][x + 1]
+                # }
+
+                for terrainType in ALL_TERRAIN_TYPES:
+                    if terrainType in tileCornerTypes:
+
 
                 for terrainType in ALL_TERRAIN_TYPES:
                     if terrainType in tileCornerTypes:
