@@ -34,6 +34,8 @@ class Grid:
                     if terrainType in tileCornerTypes:
                         tileIndex = self.getTileIndexForType(tileCornerTypes, terrainType)
                         image = self.terrainTiles[terrainType][tileIndex]
+                        cell = Cell(TILESIZE, (x, y), image, terrainType)
+                        self.cells[(x, y)] = cell
                         break
                 self.displaySurface.blit(image, (x * TILESIZE, y * TILESIZE))
         self.currentImage = self.displaySurface.copy()
@@ -45,9 +47,9 @@ class Grid:
                     tileIndex += 2 ** power
         return tileIndex
     
-    # def getCell(self, x ,y):
-    #     cellLocation = (TILESIZE * math.floor(x / TILESIZE), TILESIZE * math.floor(y / TILESIZE))
-    #     return self.cells[cellLocation]
+    def getCell(self, pos):
+        cellLocation = (math.floor(pos[0] / TILESIZE), math.floor(pos[1] / TILESIZE))
+        return self.cells[cellLocation]
 
     # def getCellGroup(self):
     #     cells = pygame.sprite.Group()
@@ -56,15 +58,16 @@ class Grid:
     #     return cells
 
 
-# class Cell(pygame.sprite.Sprite):
-#     def __init__(self, size, x, y, image):
-#         self.size = size
-#         self.x = x
-#         self.y = y
-#         self.image = image.convert()
-#         self.rect = self.image.get_rect()
-#         self.rect.center = (self.x, self.y)
-#         pygame.sprite.Sprite.__init__(self)
+class Cell(pygame.sprite.Sprite):
+    def __init__(self, size, pos, image, terrainType):
+        self.size = size
+        self.terrainType = terrainType
+        self.image = image.convert()
+        self.rect = self.image.get_rect(center = pos)
+        pygame.sprite.Sprite.__init__(self)
     
-#     def getLocation(self):
-#         return (self.x, self.y)
+    def getGridLocation(self):
+        return (self.rect.center)
+
+    def getPixelLocation(self):
+        return ((self.rect.center.x * TILESIZE, self.rect.center.y * TILESIZE))

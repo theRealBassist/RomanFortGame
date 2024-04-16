@@ -9,7 +9,6 @@ class Entity(pygame.sprite.Sprite):
         self.image =  sprite
         self.moveSpeed = moveSpeed
         self.direction = pygame.math.Vector2()
-
         self.rect = self.image.get_rect(center = pos) 
     
     def move(self):
@@ -31,7 +30,9 @@ class Entity(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
-    def update(self):
+    def update(self, grid):
+        self.currentCell = grid.getCell(self.rect.center)
+        print(self.currentCell.terrainType)
         self.move()
         self.rect.center += self.direction * self.moveSpeed
 

@@ -37,7 +37,7 @@ if __name__ == "__main__":
                 running = False
             
         cameraGroup.customDraw(grid.currentImage, player)
-        cameraGroup.update()
+        cameraGroup.update(grid)
 
         pygame.display.update()
 
