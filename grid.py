@@ -95,7 +95,6 @@ class Grid:
     def getCellRecursive(self, pos, nearbyCells, index, minimum = (9999999999, 0)):
         if index >= len(nearbyCells):
             return minimum[1]
-        print(f"length of nearbyCells = {len(nearbyCells)}")
         
         cellPixelPos = nearbyCells[index].rect.center
         cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
