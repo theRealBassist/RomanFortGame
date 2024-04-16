@@ -68,7 +68,6 @@ class Grid:
             distance = vectorPos.distance_to(cellVectorPos)
             if minimum[0] > distance: 
                 minimum = (distance, cell)
-        
         return minimum[1]
 
     # def getCellGroup(self):
@@ -83,12 +82,12 @@ class Cell(pygame.sprite.Sprite):
         self.size = size
         self.terrainType = terrainType
         self.image = image.convert()
-        self.rect = self.image.get_rect(center = pos)
+        self.rect = self.image.get_rect(center = (pos[0] * TILESIZE, pos[1] * TILESIZE))
         self.impassable = impassable
         pygame.sprite.Sprite.__init__(self)
     
     def getGridLocation(self):
-        return (self.rect.center)
+        return (self.rect.center[0] / TILESIZE, self.rect.center[1] / TILESIZE)
 
     def getPixelLocation(self):
-        return ((self.rect.center[0] * TILESIZE, self.rect.center[1] * TILESIZE))
+        return (self.rect.center)

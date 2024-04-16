@@ -30,6 +30,8 @@ if __name__ == "__main__":
     player = Roman("Player", (1000, 1000))
     cameraGroup.add(player)
 
+    cameraGroup.update(grid, dt)
+
 
     while running:
         for event in pygame.event.get():
@@ -38,6 +40,8 @@ if __name__ == "__main__":
             
         cameraGroup.customDraw(grid.currentImage)
         cameraGroup.update(grid, dt)
+
+
 
         pygame.display.update()
         #print(clock.get_fps())

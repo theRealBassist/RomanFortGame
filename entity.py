@@ -1,5 +1,6 @@
 import pygame
 from spritesheet import Spritesheet
+import math
 from config import *
 
 class Entity(pygame.sprite.Sprite):
@@ -18,18 +19,15 @@ class Entity(pygame.sprite.Sprite):
 
         keys = pygame.key.get_pressed()
 
+        currentCellGridPos = self.cellCurrent.getGridLocation()
         self.direction.y = 0
+
         if keys[pygame.K_UP]:
-            cellNorth = grid.cells[self.cellCurrent.rect.center[0], self.cellCurrent.rect.center[1] - 1]
-            if not cellNorth.impassable: 
-                self.direction.y = -1
-            elif not self.rect.colliderect(cellNorth.rect) and not self.cellCurrent.impassable:
-                print("no collision") 
-                self.direction.y = -1
-            else: 
-                print("collision")
+            cellNorth = grid.cells[currentCellGridPos[0], currentCellGridPos[1] - 1]
+            if not cellNorth.impassable: self.direction.y = -1
+            elif not self.rect.colliderect(cellNorth.rect): self.direction.y = -1
         elif keys[pygame.K_DOWN]:
-            cellSouth = grid.cells[self.cellCurrent.rect.center[0], self.cellCurrent.rect.center[1] + 1]
+            cellSouth = grid.cells[currentCellGridPos[0], currentCellGridPos[1] + 1]
             if not cellSouth.impassable : self.direction.y = 1
             elif not self.rect.colliderect(cellSouth.rect): self.direction.y = 1
         else:
@@ -37,11 +35,11 @@ class Entity(pygame.sprite.Sprite):
 
         self.direction.x = 0
         if keys[pygame.K_LEFT]:
-            cellWest = grid.cells[self.cellCurrent.rect.center[0] - 1, self.cellCurrent.rect.center[1]]
+            cellWest = grid.cells[currentCellGridPos[0] - 1, currentCellGridPos[1]]
             if not cellWest.impassable : self.direction.x = -1
             elif not self.rect.colliderect(cellWest.rect): self.direction.x = -1
         elif keys[pygame.K_RIGHT]:
-            cellEast = grid.cells[self.cellCurrent.rect.center[0] + 1, self.cellCurrent.rect.center[1]]
+            cellEast = grid.cells[currentCellGridPos[0] + 1, currentCellGridPos[1]]
             if not cellEast.impassable : self.direction.x = 1
             elif not self.rect.colliderect(cellEast.rect): self.direction.x = 1
         else:
@@ -49,7 +47,7 @@ class Entity(pygame.sprite.Sprite):
 
     def update(self, grid, dt):
 
-        self.gridPos = (int(self.rect.center[0] / TILESIZE), int(self.rect.center[1] / TILESIZE))
+        self.gridPos = (math.ceil(self.rect.center[0] / TILESIZE), math.ceil(self.rect.center[1] / TILESIZE))
         self.cellCurrent = grid.getCell(self.rect.center, self.gridPos)
 
         self.move(grid)
