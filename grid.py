@@ -71,8 +71,6 @@ class Grid:
         
         return minimum[1]
 
-        return self.cells[pos]
-
     # def getCellGroup(self):
     #     cells = pygame.sprite.Group()
     #     for cell in self.cells:

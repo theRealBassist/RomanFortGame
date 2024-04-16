@@ -40,7 +40,7 @@ if __name__ == "__main__":
         cameraGroup.update(grid, dt)
 
         pygame.display.update()
-        print(clock.get_fps())
+        #print(clock.get_fps())
         dt = clock.tick(120) / 1000
         #clock.tick(60)
 
