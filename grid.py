@@ -24,28 +24,43 @@ class Grid:
             for x, row in enumerate(row):
                 if x == WORLD_X or y == WORLD_Y:
                     continue
+                if x == 0 or y == 0:
+                    continue
             
             # get the terrain types of each tile corner
+                
+                # tile = [terrainTileMap[y][x]]
+                # if tile == "hill" or tile == "water": impassable = True
+                # else: impassable = False
+
+                # surroundingTiles = {
+                #     "B"     : terrainTileMap[y + 1][x],
+                #     "L"     : terrainTileMap[y][x - 1],
+                #     "T"     : terrainTileMap[y - 1][x],
+                #     "R"     : terrainTileMap[y][x + 1],
+                #     "BL"    : terrainTileMap[y + 1][x - 1],
+                #     "TL"    : terrainTileMap[y - 1][x - 1],
+                #     "TR"    : terrainTileMap[y - 1][x + 1],
+                #     "BR"    : terrainTileMap[y - 1][x + 1]
+                # }
+
+                # for location in surroundingTiles:
+                #     if surroundingTiles[location] != tile:
+                #         tile += f"_{surroundingTiles[location]}{location}"
+                
+                # image = self.spriteSheet.parseSprite(tile)
+                # cell = Cell(TILESIZE, (x, y), image, terrainType, impassable)
+                # self.cells[(x, y)] = cell
+                # self.displaySurface.blit(image, (x * TILESIZE, y * TILESIZE))
+
+
+                        
+
                 tileCornerTypes = []
                 tileCornerTypes.append(terrainTileMap[y + 1][x + 1])
                 tileCornerTypes.append(terrainTileMap[y + 1][x])
                 tileCornerTypes.append(terrainTileMap[y][x + 1])
                 tileCornerTypes.append(terrainTileMap[y][x])
-
-                # surroundingTiles = {
-                #     "B"     : terrainTileMap[y + 1][x],
-                #     "BL"    : terrainTileMap[y + 1][x - 1],
-                #     "L"     : terrainTileMap[y][x - 1],
-                #     "TL"    : terrainTileMap[y - 1][x - 1],
-                #     "T"     : terrainTileMap[y - 1][x],
-                #     "TR"    : terrainTileMap[y - 1][x + 1],
-                #     "R"     : terrainTileMap[y][x + 1],
-                #     "BR"    : terrainTileMap[y - 1][x + 1]
-                # }
-
-                for terrainType in ALL_TERRAIN_TYPES:
-                    if terrainType in tileCornerTypes:
-
 
                 for terrainType in ALL_TERRAIN_TYPES:
                     if terrainType in tileCornerTypes:
