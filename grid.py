@@ -84,36 +84,41 @@ class Grid:
     def getNearbyCells(self, gridPos, x = -1, y = -1, nearbyCells = []):
         if x == 1 & y == 1:
             return nearbyCells
-        
-        nearbyCellsCurrent = nearbyCells
-        nearbyCellsCurrent.append(self.cells[gridPos[0] + x, gridPos[1] + y])
+
+        nearbyCells.append(self.cells[gridPos[0] + x, gridPos[1] + y])
         if x < 1: x += 1
         if y < 1: y += 1
         
-        return self.getNearbyCells(gridPos, x, y, nearbyCellsCurrent)
+        return self.getNearbyCells(gridPos, x, y, nearbyCells)
         
 
-    def getCellRecursive(self, pos, gridPos, minimum = (9999999999, 0)):
-        x, y = -1, -1
-        nearbyCells = []
-        while x <= 1:
-            while y <= 1:
-                nearbyCells.append(self.cells[gridPos[0] + x, gridPos[1] + y])
-                y += 1
-            x += 1
+    def getCellRecursive(self, pos, nearbyCells, index = 0, minimum = (9999999999, 0)):
+        if index >= len(nearbyCells):
+            return minimum[1]
+        
+        cellPixelPos = nearbyCells[index].rect.center
+        cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
+        distance = pos.distance_to(cellVectorPos)
+        if minimum[0] > distance: 
+                minimum = (distance, nearbyCells[index])
+        index += 1
+        return self.getCellRecursive(pos, nearbyCells, index, minimum)
 
     def getCell(self, pos, gridPos):
+        nearbyCells = []
         nearbyCells = self.getNearbyCells(gridPos)
-
         vectorPos = pygame.math.Vector2(pos[0], pos[1])
-        minimum = (9999999999, 0)
-        for cell in nearbyCells:
-            cellPixelPos = cell.getPixelLocation()
-            cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
-            distance = vectorPos.distance_to(cellVectorPos)
-            if minimum[0] > distance: 
-                minimum = (distance, cell)
-        return minimum[1]
+        return self.getCellRecursive(vectorPos, nearbyCells)
+
+        # vectorPos = pygame.math.Vector2(pos[0], pos[1])
+        # minimum = (9999999999, 0)
+        # for cell in nearbyCells:
+        #     cellPixelPos = cell.getPixelLocation()
+        #     cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
+        #     distance = vectorPos.distance_to(cellVectorPos)
+        #     if minimum[0] > distance: 
+        #         minimum = (distance, cell)
+        # return minimum[1]
 
     # def getCellGroup(self):
     #     cells = pygame.sprite.Group()
