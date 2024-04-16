@@ -14,17 +14,19 @@ class Entity(pygame.sprite.Sprite):
         self.gridPos = (int(pos[0] / TILESIZE), int(pos[1] / TILESIZE))
     
     def move(self, grid):
-        # Todo: Implement checking of tile types in front of and under the target.
+        # Todo: Instead of just saying you can't go in the grid square, check for collisions
 
         keys = pygame.key.get_pressed()
 
         self.direction.y = 0
         if keys[pygame.K_UP]:
             cellNorth = grid.cells[self.cellCurrent.rect.center[0], self.cellCurrent.rect.center[1] - 1]
-            if not cellNorth.impassable : self.direction.y = -1
+            if not cellNorth.impassable: self.direction.y = -1
+            elif not self.rect.colliderect(cellNorth.rect): self.direction.y = -1
         elif keys[pygame.K_DOWN]:
             cellSouth = grid.cells[self.cellCurrent.rect.center[0], self.cellCurrent.rect.center[1] + 1]
             if not cellSouth.impassable : self.direction.y = 1
+            elif not self.rect.colliderect(cellSouth.rect): self.direction.y = -1
         else:
             self.direction.y = 0
 
@@ -32,16 +34,17 @@ class Entity(pygame.sprite.Sprite):
         if keys[pygame.K_LEFT]:
             cellWest = grid.cells[self.cellCurrent.rect.center[0] - 1, self.cellCurrent.rect.center[1]]
             if not cellWest.impassable : self.direction.x = -1
+            elif not self.rect.colliderect(cellWest.rect): self.direction.y = -1
         elif keys[pygame.K_RIGHT]:
             cellEast = grid.cells[self.cellCurrent.rect.center[0] + 1, self.cellCurrent.rect.center[1]]
             if not cellEast.impassable : self.direction.x = 1
+            elif not self.rect.colliderect(cellEast.rect): self.direction.y = -1
         else:
             self.direction.x = 0
 
     def update(self, grid, dt):
 
         self.gridPos = (int(self.rect.center[0] / TILESIZE), int(self.rect.center[1] / TILESIZE))
-
         self.cellCurrent = grid.getCell(self.rect.center, self.gridPos)
 
         self.move(grid)
