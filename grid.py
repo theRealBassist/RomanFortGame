@@ -2,11 +2,13 @@ import pygame
 from spritesheet import Spritesheet
 import math
 from config import *
+from spritesheet import Spritesheet
 
 class Grid:
-    def __init__(self, screen):
+    def __init__(self):
         self.displaySurface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT))
         self.tileSheet = pygame.image.load(TERRAIN_TILESHEET)
+        #self.spriteSheet = Spritesheet(TERRAIN_TILESHEET) 
         self.cells = dict()
         self.terrainTiles = []
         self.currentImage = self.displaySurface.copy()
@@ -22,8 +24,38 @@ class Grid:
             for x, row in enumerate(row):
                 if x == WORLD_X or y == WORLD_Y:
                     continue
+                if x == 0 or y == 0:
+                    continue
             
             # get the terrain types of each tile corner
+                
+                # tile = [terrainTileMap[y][x]]
+                # if tile == "hill" or tile == "water": impassable = True
+                # else: impassable = False
+
+                # surroundingTiles = {
+                #     "B"     : terrainTileMap[y + 1][x],
+                #     "L"     : terrainTileMap[y][x - 1],
+                #     "T"     : terrainTileMap[y - 1][x],
+                #     "R"     : terrainTileMap[y][x + 1],
+                #     "BL"    : terrainTileMap[y + 1][x - 1],
+                #     "TL"    : terrainTileMap[y - 1][x - 1],
+                #     "TR"    : terrainTileMap[y - 1][x + 1],
+                #     "BR"    : terrainTileMap[y - 1][x + 1]
+                # }
+
+                # for location in surroundingTiles:
+                #     if surroundingTiles[location] != tile:
+                #         tile += f"_{surroundingTiles[location]}{location}"
+                
+                # image = self.spriteSheet.parseSprite(tile)
+                # cell = Cell(TILESIZE, (x, y), image, terrainType, impassable)
+                # self.cells[(x, y)] = cell
+                # self.displaySurface.blit(image, (x * TILESIZE, y * TILESIZE))
+
+
+                        
+
                 tileCornerTypes = []
                 tileCornerTypes.append(terrainTileMap[y + 1][x + 1])
                 tileCornerTypes.append(terrainTileMap[y + 1][x])
@@ -49,32 +81,35 @@ class Grid:
                     tileIndex += 2 ** power
         return tileIndex
     
-    def getCell(self, pos, gridPos):
-        x = -1
-        y = -1
-
+    def getNearbyCells(self, gridPos):
+        x, y = -1, -1
         nearbyCells = []
         while x <= 1:
             while y <= 1:
                 nearbyCells.append(self.cells[gridPos[0] + x, gridPos[1] + y])
                 y += 1
             x += 1
+        return nearbyCells
+        
 
+    def getCellRecursive(self, pos, nearbyCells, index, minimum = (9999999999, 0)):
+        if index >= len(nearbyCells):
+            return minimum[1]
+        
+        cellPixelPos = nearbyCells[index].rect.center
+        cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
+        distance = pos.distance_to(cellVectorPos)
+        if minimum[0] > distance: 
+                minimum = (distance, nearbyCells[index])
+        return self.getCellRecursive(pos, nearbyCells, index + 1, minimum)
+
+    def getCell(self, pos, gridPos):
+        nearbyCells = []
+        nearbyCells = self.getNearbyCells(gridPos)
         vectorPos = pygame.math.Vector2(pos[0], pos[1])
-        minimum = (9999999999, 0)
-        for cell in nearbyCells:
-            cellPixelPos = cell.getPixelLocation()
-            cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
-            distance = vectorPos.distance_to(cellVectorPos)
-            if minimum[0] > distance: 
-                minimum = (distance, cell)
-        return minimum[1]
+        nearestCell = self.getCellRecursive(vectorPos, nearbyCells, 0)
+        return nearestCell
 
-    # def getCellGroup(self):
-    #     cells = pygame.sprite.Group()
-    #     for cell in self.cells:
-    #         cells.add(self.cells[cell])
-    #     return cells
 
 
 class Cell(pygame.sprite.Sprite):

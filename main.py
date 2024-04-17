@@ -19,7 +19,7 @@ if __name__ == "__main__":
     seed = random.randint(0,256)
 
     terrain = Generate(WORLD_X, WORLD_Y, random.randint(0,256))
-    grid = Grid(screen)
+    grid = Grid()
     grid.drawTiles(terrain.tileMap)
     map = grid.currentImage
 
