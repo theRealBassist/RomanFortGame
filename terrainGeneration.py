@@ -10,7 +10,7 @@ class Generate:
         self.minValue = min(valueList)
         self.maxValue = max(valueList)
 
-        weights = [0, 5, 10, 5, 50, 20, 0] 
+        weights = [0, 5, 10, 5, 50, 35, 0] 
 
         self.tileMap = self.generateTiledMap(weights)
 

@@ -51,14 +51,21 @@ class Grid:
         return tileIndex
     
     def getNearbyCells(self, gridPos):
-        x = -1
+        x = gridPos[0]
+        y = gridPos[1]
         nearbyCells = []
-        while x <= 1:
-            y = -1
-            while y <= 1:
-                nearbyCells.append(self.cells[gridPos[0] + x, gridPos[1] + y])
-                y += 1
-            x += 1
+
+        #nearbyCells.append(self.cells[(x - 1, y - 1)])
+        nearbyCells.append(self.cells[(x - 1, y)])
+        #nearbyCells.append(self.cells[(x - 1, y + 1)])
+
+        nearbyCells.append(self.cells[(x, y - 1)])
+        nearbyCells.append(self.cells[(x, y + 1)])
+
+        #nearbyCells.append(self.cells[(x + 1, y - 1)])
+        nearbyCells.append(self.cells[(x + 1, y)])
+        #nearbyCells.append(self.cells[(x + 1, y + 1)])
+        
         return nearbyCells
         
 
@@ -73,10 +80,16 @@ class Grid:
                 minimum = (distance, nearbyCells[index])
         return self.getCellRecursive(pos, nearbyCells, index + 1, minimum)
 
-    def getCell(self, pos, gridPos):
-        nearbyCells = []
+    def getCell(self, pos):
+        vectorPos = pygame.math.Vector2(pos)
+        gridPos = (math.ceil(pos[0] / TILESIZE), math.ceil(pos[1] / TILESIZE))
+        if gridPos[0] < 1 :  gridPos = (gridPos[0] + 1, gridPos[1])
+        if gridPos[1] < 1 : gridPos = (gridPos[0], gridPos[1] + 1)
+        gridVectorPos = pygame.math.Vector2(self.cells[gridPos].getPosition())
+
+        if vectorPos.distance_to(gridVectorPos) < TILESIZE / 2:
+            return self.cells[gridPos]
         nearbyCells = self.getNearbyCells(gridPos)
-        vectorPos = pygame.math.Vector2(pos[0], pos[1])
         nearestCell = self.getCellRecursive(vectorPos, nearbyCells, 0)
         return nearestCell
 

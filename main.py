@@ -28,6 +28,12 @@ if __name__ == "__main__":
     player = Roman("Player", (1000, 1000))
     cameraGroup.add(player)
 
+    x = 0
+    while x < 150:
+        entity = Roman(x, (1000, 1000))
+        cameraGroup.add(entity)
+        x += 1
+
     cameraGroup.update(grid)
 
 
@@ -36,12 +42,17 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
             
-        cameraGroup.customDraw(grid.currentImage)
+        cameraGroup.customDraw(grid.currentImage, player)
         cameraGroup.update(grid)
+
+        for entity in cameraGroup:
+            target = grid.cells[(random.randint(0, 125), random.randint(0,125))].getPixelLocation()
+            entity.setTarget(target)
 
 
 
         pygame.display.update()
+        print(clock.get_fps())
         clock.tick(60)
 
 

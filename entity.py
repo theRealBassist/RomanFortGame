@@ -13,9 +13,10 @@ class Entity(pygame.sprite.Sprite):
         self.direction = pygame.math.Vector2()
         self.rect = self.image.get_rect(center = pos) 
         self.gridPos = (int(pos[0] / TILESIZE), int(pos[1] / TILESIZE))
+        self.isMoving = False
+        self.target = 0
     
     def move(self, grid):
-        # Todo: It seems that diagonal movement is causing the ongoing collision issues. 
 
         keys = pygame.key.get_pressed()
 
@@ -46,21 +47,69 @@ class Entity(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
-    def moveTowards(self, pos):
-        selfPos = self.rect.center
-        targetPos = pos
+    def getTargetDirection(self, pos):
+        selfPos = pygame.math.Vector2(self.rect.center)
+        targetPos = pygame.math.Vector2(pos)
 
-        distance = pygame.math.Vector2(targetPos[0] - selfPos[0], targetPos[1] - selfPos[1]).normalize()
-        self.direction = distance
+        return pygame.math.Vector2(targetPos.x - selfPos.x, targetPos.y - selfPos.y).normalize()
+
+    def getTargetDistance(self, pos):
+        selfPos = pygame.math.Vector2(self.rect.center)
+        targetPos = pygame.math.Vector2(pos)
         
+        return selfPos.distance_to(targetPos)
+
+    def moveTowards(self, pos):
+        #todo implement following mechanic
+        
+        self.direction = 0
+        direction = self.getTargetDirection(pos)
+        distance = self.getTargetDistance(pos)
+
+        if  distance < 10:
+            self.isMoving = False
+            self.target = 0
+        if not self.getLOS(self.target):
+            self.isMoving = False
+            self.target = 0
+        
+        self.rect.center += direction * self.moveSpeed
+        
+
+    def getLOSRecursive(self, pos, targetPos, direction, distance = 9999, x = 1):
+        if x > 999 or pos[0] < 0 or pos[1] < 0:
+            return False
+        if self.grid.getCell(pos).impassable:
+            return False
+        if distance < 25:
+            return True
+
+        pos += direction * x
+        x += 1
+        distance = pygame.math.Vector2(pos).distance_to(targetPos)
+        return self.getLOSRecursive(pos, targetPos, direction, distance, x)
+        
+    def getLOS(self, pos):
+        if self.getTargetDistance(pos) > 1000:
+            return False
+        targetPos = pygame.math.Vector2(pos)
+        direction = self.getTargetDirection(pos)
+        
+        return self.getLOSRecursive(self.rect.center, targetPos, direction)
 
     def update(self, grid):
 
-        self.gridPos = (math.ceil(self.rect.center[0] / TILESIZE), math.ceil(self.rect.center[1] / TILESIZE))
-        self.cellCurrent = grid.getCell(self.rect.center, self.gridPos)
+        self.grid = grid
+        self.cellCurrent = grid.getCell(self.rect.center)
 
-        self.move(grid)
-        self.rect.center = self.rect.center + (self.direction * self.moveSpeed)
+        if self.target != 0: 
+            self.isMoving = True
+            self.moveTowards(self.target)
+        #self.move(grid)
+
+    def setTarget(self, pos):
+        if not self.isMoving:
+            self.target = pos
 
 class Roman(Entity):
     def __init__(self, name, pos):

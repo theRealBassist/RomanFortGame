@@ -56,11 +56,11 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = self.cameraRect.left - self.cameraBorders["left"]
         self.offset.y = self.cameraRect.top - self.cameraBorders["top"]
     
-    def customDraw(self, surface):
+    def customDraw(self, surface, player):
 
-        #self.centerTargetCamera(player)
+        self.centerTargetCamera(player)
         #self.boxTargetCamera(player)
-        self.keyboardControl()
+        #self.keyboardControl()
 
         self.groundSurface = surface
         self.groundRect = self.groundSurface.get_rect(topleft = (0,0))
