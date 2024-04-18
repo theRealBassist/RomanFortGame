@@ -24,38 +24,7 @@ class Grid:
             for x, row in enumerate(row):
                 if x == WORLD_X or y == WORLD_Y:
                     continue
-                if x == 0 or y == 0:
-                    continue
-            
-            # get the terrain types of each tile corner
-                
-                # tile = [terrainTileMap[y][x]]
-                # if tile == "hill" or tile == "water": impassable = True
-                # else: impassable = False
-
-                # surroundingTiles = {
-                #     "B"     : terrainTileMap[y + 1][x],
-                #     "L"     : terrainTileMap[y][x - 1],
-                #     "T"     : terrainTileMap[y - 1][x],
-                #     "R"     : terrainTileMap[y][x + 1],
-                #     "BL"    : terrainTileMap[y + 1][x - 1],
-                #     "TL"    : terrainTileMap[y - 1][x - 1],
-                #     "TR"    : terrainTileMap[y - 1][x + 1],
-                #     "BR"    : terrainTileMap[y - 1][x + 1]
-                # }
-
-                # for location in surroundingTiles:
-                #     if surroundingTiles[location] != tile:
-                #         tile += f"_{surroundingTiles[location]}{location}"
-                
-                # image = self.spriteSheet.parseSprite(tile)
-                # cell = Cell(TILESIZE, (x, y), image, terrainType, impassable)
-                # self.cells[(x, y)] = cell
-                # self.displaySurface.blit(image, (x * TILESIZE, y * TILESIZE))
-
-
-                        
-
+        
                 tileCornerTypes = []
                 tileCornerTypes.append(terrainTileMap[y + 1][x + 1])
                 tileCornerTypes.append(terrainTileMap[y + 1][x])
@@ -82,9 +51,10 @@ class Grid:
         return tileIndex
     
     def getNearbyCells(self, gridPos):
-        x, y = -1, -1
+        x = -1
         nearbyCells = []
         while x <= 1:
+            y = -1
             while y <= 1:
                 nearbyCells.append(self.cells[gridPos[0] + x, gridPos[1] + y])
                 y += 1
@@ -96,7 +66,7 @@ class Grid:
         if index >= len(nearbyCells):
             return minimum[1]
         
-        cellPixelPos = nearbyCells[index].rect.center
+        cellPixelPos = nearbyCells[index].getPosition()
         cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
         distance = pos.distance_to(cellVectorPos)
         if minimum[0] > distance: 
@@ -114,15 +84,19 @@ class Grid:
 
 class Cell(pygame.sprite.Sprite):
     def __init__(self, size, pos, image, terrainType, impassable):
+        pygame.sprite.Sprite.__init__(self)
         self.size = size
         self.terrainType = terrainType
         self.image = image.convert()
         self.rect = self.image.get_rect(center = (pos[0] * TILESIZE, pos[1] * TILESIZE))
         self.impassable = impassable
-        pygame.sprite.Sprite.__init__(self)
+        
     
     def getGridLocation(self):
         return (self.rect.center[0] / TILESIZE, self.rect.center[1] / TILESIZE)
 
     def getPixelLocation(self):
         return (self.rect.center)
+
+    def getPosition(self):
+        return self.rect.center

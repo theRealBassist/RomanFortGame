@@ -28,7 +28,8 @@ class Entity(pygame.sprite.Sprite):
             elif not self.rect.colliderect(cellNorth.rect): self.direction.y = -1
         elif keys[pygame.K_DOWN]:
             cellSouth = grid.cells[currentCellGridPos[0], currentCellGridPos[1] + 1]
-            if not cellSouth.impassable : self.direction.y = 1
+            if not cellSouth.impassable : 
+                self.direction.y = 1
             elif not self.rect.colliderect(cellSouth.rect): self.direction.y = 1
         else:
             self.direction.y = 0
@@ -45,17 +46,25 @@ class Entity(pygame.sprite.Sprite):
         else:
             self.direction.x = 0
 
-    def update(self, grid, dt):
+    def moveTowards(self, pos):
+        selfPos = self.rect.center
+        targetPos = pos
+
+        distance = pygame.math.Vector2(targetPos[0] - selfPos[0], targetPos[1] - selfPos[1]).normalize()
+        self.direction = distance
+        
+
+    def update(self, grid):
 
         self.gridPos = (math.ceil(self.rect.center[0] / TILESIZE), math.ceil(self.rect.center[1] / TILESIZE))
         self.cellCurrent = grid.getCell(self.rect.center, self.gridPos)
 
         self.move(grid)
-        self.rect.center += self.direction * self.moveSpeed * dt
+        self.rect.center = self.rect.center + (self.direction * self.moveSpeed)
 
 class Roman(Entity):
     def __init__(self, name, pos):
         romanSpriteSheet = Spritesheet("assets/sprites/roman_test/blue/blue.png")
         image = romanSpriteSheet.parseSprite("Walk/Walk_South_0.png").convert()
-        Entity.__init__(self, name, image, pos, 90)
+        Entity.__init__(self, name, image, pos, 3)
         

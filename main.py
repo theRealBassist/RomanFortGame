@@ -12,7 +12,6 @@ if __name__ == "__main__":
     pygame.init()
     clock = pygame.time.Clock()
     running = True
-    dt = 0
 
     screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
 
@@ -23,14 +22,13 @@ if __name__ == "__main__":
     grid.drawTiles(terrain.tileMap)
     map = grid.currentImage
 
-    pygame.display.flip()
     pygame.display.set_caption("Roman Fort Game")
 
     cameraGroup = CameraGroup()
     player = Roman("Player", (1000, 1000))
     cameraGroup.add(player)
 
-    cameraGroup.update(grid, dt)
+    cameraGroup.update(grid)
 
 
     while running:
@@ -39,13 +37,12 @@ if __name__ == "__main__":
                 running = False
             
         cameraGroup.customDraw(grid.currentImage)
-        cameraGroup.update(grid, dt)
+        cameraGroup.update(grid)
 
 
 
         pygame.display.update()
-        #print(clock.get_fps())
-        dt = clock.tick(120) / 1000
+        clock.tick(60)
 
 
     pygame.quit()

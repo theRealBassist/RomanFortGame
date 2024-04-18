@@ -18,17 +18,6 @@ GRASS = 4
 MOUNTAIN = 5
 SNOW = 6
 
-TILE_RELATIONSHIPS = {
-    "B": "T",
-    "L": "R",
-    "T": "B",
-    "R": "L",
-}
-
-
-
-
-
 
 # List of all terrain type, ordered from lower height to higher height
 ALL_TERRAIN_TYPES = [OCEAN3, OCEAN2, OCEAN1, BEACH, GRASS, MOUNTAIN, SNOW]
