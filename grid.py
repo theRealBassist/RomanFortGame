@@ -95,9 +95,9 @@ class Grid:
     def getNearbyCells(self, gridPos):
         x, y = gridPos[0], gridPos[1]
         if x <= 0: x = 1
-        if x >= WORLD_X: x -= 1
+        if x >= WORLD_X: x = WORLD_X
         if y <= 0: y = 1
-        if y >= WORLD_Y: y -=1
+        if y >= WORLD_Y: y = WORLD_Y
         nearbyCells = []
 
         #nearbyCells.append(self.cells[(x - 1, y - 1)])

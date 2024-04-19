@@ -51,7 +51,7 @@ if __name__ == "__main__":
 
 
         pygame.display.flip()
-        #print(clock.get_fps())
+        print(clock.get_fps())
         clock.tick(60)
 
 

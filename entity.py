@@ -33,6 +33,12 @@ class Entity(pygame.sprite.Sprite):
         targetPos = pygame.math.Vector2(pos)
         
         return selfPos.distance_to(targetPos)
+    
+    def getTargetAngle(self, target):
+        entityDirection = self.getTargetDirection(target.rect.center)
+        angle = self.direction.angle_to(entityDirection)
+
+        return angle
 
     def checkArrived(self):
         if  self.distance < 10:
@@ -51,7 +57,7 @@ class Entity(pygame.sprite.Sprite):
         if self.following: 
             self.image = self.attackSprite
             entityDirection = self.getTargetDirection(self.followTarget.rect.center)
-            lerp = self.direction.lerp(entityDirection, 0.75)
+            lerp = self.direction.lerp(entityDirection, .8).normalize()
             if self.newLOS(self.target) : 
                 self.direction = lerp
             else: 
@@ -79,8 +85,7 @@ class Entity(pygame.sprite.Sprite):
         followCandidate = (15, 0)
         for entity in self.group:
             if self.getTargetDistance(entity.rect.center) > 100 or self.getTargetDistance(entity.rect.center) < 2: continue
-            entityDirection = self.getTargetDirection(entity.rect.center)
-            angle = self.direction.angle_to(entityDirection)
+            angle = self.getTargetAngle(entity)
             if angle < followCandidate[0] and angle > 2:
                 followCandidate = (angle, entity)
         
@@ -94,10 +99,10 @@ class Entity(pygame.sprite.Sprite):
             return None
         
     def getStillFollowing(self):
-        angle = abs(self.followTarget.direction.angle_to(self.direction))
+        angle = abs(self.followTarget.direction.angle_to(self.getTargetDirection(self.target)))
         followTargetDistance = self.followTarget.getTargetDistance(self.target)
         targetDistance = self.getTargetDistance(self.target)
-        if angle <= 15 and followTargetDistance < targetDistance:
+        if angle <= 45 and followTargetDistance < targetDistance:
             return True
         else:
             return False
