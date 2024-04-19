@@ -2,6 +2,8 @@ import pygame
 from spritesheet import Spritesheet
 import math
 from config import *
+import time
+import logging
 
 class Entity(pygame.sprite.Sprite):
 
@@ -11,16 +13,16 @@ class Entity(pygame.sprite.Sprite):
         self.defaultSprite = sprite
         self.image =  sprite
         self.moveSpeed = moveSpeed
-        self.direction = pygame.math.Vector2(1, 1)
+        self.direction = None
         self.rect = self.image.get_rect(center = pos) 
         self.gridPos = (math.ceil(pos[0] / TILESIZE), math.ceil(pos[1] / TILESIZE))
         self.isMoving = False
-        self.target = (0, 0)
+        self.target = None
         self.followTarget = None
         self.following = False
 
     def getTargetDirection(self, pos):
-        selfPos = pygame.math.Vector2(self.rect.center)
+        selfPos = pygame.math.Vector2(self.getPosition())
         targetPos = pygame.math.Vector2(pos)
         direction = pygame.math.Vector2(targetPos.x - selfPos.x, targetPos.y - selfPos.y)
         if direction.length() > 0 : 
@@ -29,7 +31,7 @@ class Entity(pygame.sprite.Sprite):
             return direction
 
     def getTargetDistance(self, pos):
-        selfPos = pygame.math.Vector2(self.rect.center)
+        selfPos = pygame.math.Vector2(self.getPosition())
         targetPos = pygame.math.Vector2(pos)
         
         return selfPos.distance_to(targetPos)
@@ -45,123 +47,128 @@ class Entity(pygame.sprite.Sprite):
     def checkArrived(self):
         if  self.distance < 10:
                 self.isMoving = False
-                self.target = (0, 0)
-        if not self.newLOS(self.target):
+                self.target = None
+        if not self.getLOS(self.target):
             self.isMoving = False
-            self.target = (0, 0)
+            self.target = None
 
-    def moveTowards(self, pos):
-        self.followTarget = self.getFollowTarget()
-        self.direction.x, self.direction.y = 0, 1
+    def stopFollowing(self):
+        self.following = False
+        self.followTarget = None
+        self.image = self.defaultSprite
 
-        if self.newLOS(self.target) : self.direction = self.getTargetDirection(pos)
-        distance = self.getTargetDistance(pos)
-        if self.following: 
-            self.image = self.attackSprite
-            entityDirection = self.getTargetDirection(self.followTarget.rect.center)
-            lerp = self.direction.lerp(entityDirection, .8).normalize()
-            if self.newLOS(self.target) : 
-                self.direction = lerp
+    def startFollowing(self, target):
+        self.following = True
+        self.followTarget = target
+        self.image = self.attackSprite
+
+    def move(self):
+        start = time.perf_counter()
+        if not self.target == None:
+            logging.debug(f"Entity {self.name} has a target of {self.target}")
+            distanceToTarget = self.getTargetDistance(self.target)
+            if distanceToTarget < 10: 
+                self.isMoving = False 
+                self.target = None 
+                return
+            direction = self.getTargetDirection(self.target) 
+            targetLOS = self.getLOS(self.target)
+            if not targetLOS: 
+                self.isMoving = False
+                self.target = None
+                return
+            if not self.getStillFollowing():
+               self.getFollowTarget()
+            if self.following and self.direction is not None:
+                directionToTarget = self.getTargetDirection(self.followTarget.getPosition())
+                distanceToTarget = self.getTargetDistance(self.followTarget.getPosition())
+                direction = self.direction.lerp(directionToTarget, .85).normalize()
+                targetLOS = self.getLOS(self.followTarget.getPosition())
+            
+            if targetLOS:
+                self.direction = direction                   
             else: 
-                self.following = False
-                self.image = self.defaultSprite
-                self.followTarget = None
-        else:
-            self.image = self.defaultSprite
-        
-        if  distance < 10:
-            self.isMoving = False
-            self.target = (0, 0)
-        if not self.newLOS(self.target):
-        #if not self.newGetLOS(self.rect.center, self.getTargetDirection(self.target)):
-            self.isMoving = False
-            self.target = (0, 0)
-        
-        self.rect.center += self.direction * self.moveSpeed
+                self.isMoving = False
+                self.target = None
+            if self.direction is not None:    
+                self.setPosition(self.getPosition() + self.direction * self.moveSpeed)
+        end = time.perf_counter()
+        logging.debug(f"Move executed in {end - start}")
+
     
     def getFollowTarget(self):
+        if self.getStillFollowing(): 
+            self.startFollowing(self.followTarget)
+            return
 
-        if self.getStillFollowing(): return self.followTarget
-
-        followCandidate = (15, 0)
+        followCandidate = (35, 0)
+        
         for entity in self.group:
-            if self.getTargetDistance(entity.rect.center) > 100 or self.getTargetDistance(entity.rect.center) < 2: continue
+            entityPosition = entity.getPosition()
+            if self.getTargetDistance(entityPosition) > 100 or self.getTargetDistance(entityPosition) < 2 or entity.direction is None: continue
             angle = self.getTargetAngleToCurrentTarget(entity)
             if angle < followCandidate[0] and angle > 2:
                 followCandidate = (angle, entity)
         
         if followCandidate[1] != 0:
-            self.following = True
-            self.image = self.attackSprite
-            return followCandidate[1]
+            self.startFollowing(followCandidate[1])
         else:
-            self.image = self.defaultSprite
-            self.following = False
-            return None
+            self.stopFollowing()
+
+    def checkFollowLoopRecursive(self, original, visited = []):
+        if self.followTarget is None:
+            return False
+        if self.followTarget is original or self.followTarget in visited:
+            return True
         
+        visited.append(self)
+        return self.followTarget.checkFollowLoopRecursive(original, visited)
+
     def getStillFollowing(self):
-        if not self.following: return False
+        if not self.following: 
+            return False
+
+        if self.getTargetDistance(self.followTarget.getPosition()) < 10:
+            return False
 
         angle = self.getTargetAngleToCurrentTarget(self.followTarget)
         followTargetDistance = self.followTarget.getTargetDistance(self.target)
         targetDistance = self.getTargetDistance(self.target)
 
         if angle <= 30 and followTargetDistance < targetDistance:
+            self.startFollowing(self.followTarget)
             return True
         else:
+            self.stopFollowing()
             return False
-
-    def getLOSRecursive(self, pos, targetPos, direction, distance = 9999, x = 1):
-        if x > 999 or pos[0] < 0 or pos[1] < 0:
-            return False
-        if self.grid.getCell(pos).impassable:
-            return False
-        if distance < 25:
-            return True
-
-        pos += direction * x
-        x += 1
-        distance = pygame.math.Vector2(pos).distance_to(targetPos)
-        return self.getLOSRecursive(pos, targetPos, direction, distance, x)
         
+    #def getLOSRecursive(self):
+
+    
     def getLOS(self, pos):
-        if self.getTargetDistance(pos) > 1000:
-            return False
-        targetPos = pygame.math.Vector2(pos)
-        direction = self.getTargetDirection(pos)
-        
-        return self.getLOSRecursive(self.rect.center, targetPos, direction)
-    
-    def newLOSRecursive(self, ray, increment):
-        collisionList = []
-        collisionList.append(self.grid.collisionList[increment])
-        collision = ray.collideobjects(collisionList, key = lambda r: r.rect)
-        if collision: return False
-
-        return self.newLOSRecursive(ray, increment + 1)
-    
-    def newLOS(self, pos):
         if self.getTargetDistance(pos) > 500:
             return False
         
-        cellsOnVector = self.grid.getCellsOnVector(self.rect.center, pos)
+        #need to optimize this 
+        cellsOnVector = self.grid.getCellsOnVector(self.getPosition(), pos)
         
-        ray = pygame.draw.line(self.grid.displaySurface, "red", self.rect.center, pos)
-        #return self.newLOSRecursive(ray, 0)
+        ray = pygame.draw.line(self.grid.displaySurface, "red", self.getPosition(), pos)
         collision = ray.collideobjects(cellsOnVector, key = lambda r: r.rect)
         if collision:
             return False
+        if self.cellCurrent.impassable: 
+            print("missed me")
         return True
 
     def update(self, grid):
 
         self.grid = grid
-        self.cellCurrent = grid.getCell(self.rect.center)
+        self.cellCurrent = grid.getCell(self.getPosition())
 
-        if self.target != 0: 
+        if self.target: 
+            #self.direction = self.getTargetDirection(self.target)
             self.isMoving = True
-            self.moveTowards(self.target)
-        #self.move(grid)
+            self.move()
 
     def setTarget(self, pos):
         if not self.isMoving:
@@ -170,6 +177,12 @@ class Entity(pygame.sprite.Sprite):
     def setSpriteGroup(self, group):
         self.group = group
         self.group.add(self)
+
+    def setPosition(self, position):
+        self.rect.center = position
+    
+    def getPosition(self):
+        return self.rect.center
 
 class Roman(Entity):
     def __init__(self, name, pos):

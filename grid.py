@@ -65,14 +65,9 @@ class Grid:
             if cell.impassable: cellsOnVector[cell.rect.center] = cell
 
         startVector  = pygame.math.Vector2(start)
-        #23, 45
         endVector = pygame.math.Vector2(end)
-        #45, 32
         direction = pygame.math.Vector2(endVector.x - startVector.x, endVector.y - startVector.y)
-        #45 - 23, 32 - 45
-        #22, -13
         length = startVector.distance_to(endVector)
-        #
         if direction.length() > 0 : 
             direction = direction.normalize()
         else: 
@@ -86,18 +81,13 @@ class Grid:
                     cellsOnVector[cell.rect.center] = cell
         
         return list(cellsOnVector.values())
-
-
-
-
-
     
     def getNearbyCells(self, gridPos):
         x, y = gridPos[0], gridPos[1]
-        if x <= 0: x = 1
-        if x >= WORLD_X: x = WORLD_X
-        if y <= 0: y = 1
-        if y >= WORLD_Y: y = WORLD_Y
+        if x < 1 : x = 1
+        if y < 1 : y = 1
+        if x >= WORLD_X - 1 : x = WORLD_X - 2
+        if y >= WORLD_Y - 1 : y = WORLD_Y - 2
         nearbyCells = []
 
         #nearbyCells.append(self.cells[(x - 1, y - 1)])
@@ -128,8 +118,8 @@ class Grid:
     def getCell(self, pos):
         vectorPos = pygame.math.Vector2(pos)
         gridPos = (math.ceil(pos[0] / TILESIZE), math.ceil(pos[1] / TILESIZE))
-        if gridPos[0] < 1 :  gridPos = (gridPos[0] + 1, gridPos[1])
-        if gridPos[1] < 1 : gridPos = (gridPos[0], gridPos[1] + 1)
+        if gridPos[0] < 1 :  gridPos = (1, gridPos[1])
+        if gridPos[1] < 1 : gridPos = (gridPos[0], 1)
         gridVectorPos = pygame.math.Vector2(self.cells[gridPos].getPixelLocation())
 
         if vectorPos.distance_to(gridVectorPos) < TILESIZE / 2:

@@ -6,8 +6,12 @@ from grid import Grid
 from camera import CameraGroup
 from config import *
 import random
+import logging
 
 if __name__ == "__main__":
+    loggingLevel = logging.DEBUG
+    fmt = '[%(levelname)s] %(asctime)s - %(message)s'
+    logging.basicConfig(level=loggingLevel, format = fmt)
 
     pygame.init()
     clock = pygame.time.Clock()
@@ -26,32 +30,33 @@ if __name__ == "__main__":
 
     cameraGroup = CameraGroup()
 
-    for x, __ in enumerate(range(25)):
-        entity = Roman(x, (random.randint(WORLD_WIDTH // 2 - 150, WORLD_WIDTH // 2 + 150), random.randint(WORLD_HEIGHT // 2 -150, WORLD_HEIGHT // 2 + 150)))
+    for x, __ in enumerate(range(50)):
+        entity = Roman(x, (random.randint(100, 1000), random.randint(100, 1000)))
         entity.setSpriteGroup(cameraGroup)
 
+    logging.debug(f"WORLD_X = {WORLD_X}, WORLD_Y = {WORLD_Y}")
     cameraGroup.update(grid)
+
 
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-        
+        fps = clock.get_fps()
 
         
-        cameraGroup.customDraw(grid.currentImage, cameraGroup.sprites()[0])
+        cameraGroup.customDraw(grid.currentImage, cameraGroup.sprites()[0], fps)
         
-        cameraGroup.update(grid)
+        
 
         for entity in cameraGroup:
-            target = grid.cells[(random.randint(0, 125), random.randint(0,125))].getPixelLocation()
+            target = grid.cells[random.randint(0, WORLD_X - 1), random.randint(0, WORLD_Y - 1)].getPixelLocation()
             entity.setTarget(target)
 
-
+        cameraGroup.update(grid)
 
         pygame.display.flip()
-        print(clock.get_fps())
         clock.tick(60)
 
 

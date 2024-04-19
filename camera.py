@@ -56,7 +56,7 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = self.cameraRect.left - self.cameraBorders["left"]
         self.offset.y = self.cameraRect.top - self.cameraBorders["top"]
     
-    def customDraw(self, surface, player = None):
+    def customDraw(self, surface, player = None, fps = None):
 
         self.centerTargetCamera(player)
         #self.boxTargetCamera(player)
@@ -70,5 +70,9 @@ class CameraGroup(pygame.sprite.Group):
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
             offsetPos = sprite.rect.topleft - self.offset
             self.displaySurface.blit(sprite.image, offsetPos)
+        
+        if fps is not None:
+            font = pygame.font.SysFont("Verdana", 20)
+            self.displaySurface.blit (font.render((str(int(fps))), True, "black"), (10, 10))
         
         
