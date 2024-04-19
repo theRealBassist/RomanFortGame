@@ -15,6 +15,9 @@ class Entity(pygame.sprite.Sprite):
         self.gridPos = (int(pos[0] / TILESIZE), int(pos[1] / TILESIZE))
         self.isMoving = False
         self.target = 0
+        self.followTarget = None
+        self.following = False
+        self.moveSpeedModifier = 1
     
     def move(self, grid):
 
@@ -50,8 +53,11 @@ class Entity(pygame.sprite.Sprite):
     def getTargetDirection(self, pos):
         selfPos = pygame.math.Vector2(self.rect.center)
         targetPos = pygame.math.Vector2(pos)
-
-        return pygame.math.Vector2(targetPos.x - selfPos.x, targetPos.y - selfPos.y).normalize()
+        direction = pygame.math.Vector2(targetPos.x - selfPos.x, targetPos.y - selfPos.y)
+        if direction.length() > 0 : 
+            return direction.normalize()
+        else:
+            return direction
 
     def getTargetDistance(self, pos):
         selfPos = pygame.math.Vector2(self.rect.center)
@@ -59,11 +65,24 @@ class Entity(pygame.sprite.Sprite):
         
         return selfPos.distance_to(targetPos)
 
+    def checkArrived(self):
+        if  self.distance < 10:
+                self.isMoving = False
+                self.target = 0
+                self.notFollowable = []
+        if not self.getLOS(self.target):
+            self.isMoving = False
+            self.target = 0
+
     def moveTowards(self, pos):
         #todo implement following mechanic
-        
-        self.direction = 0
-        direction = self.getTargetDirection(pos)
+        self.followTarget = self.getFollowTarget()
+        self.direction.x, self.direction.y = 0, 0
+
+        self.direction = self.getTargetDirection(pos)
+        if self.following: 
+            lerp = self.direction.lerp(self.getTargetDirection(self.followTarget.target), 0.5)
+            self.direction = lerp
         distance = self.getTargetDistance(pos)
 
         if  distance < 10:
@@ -73,8 +92,41 @@ class Entity(pygame.sprite.Sprite):
             self.isMoving = False
             self.target = 0
         
-        self.rect.center += direction * self.moveSpeed
+        self.rect.center += self.direction * self.moveSpeed * self.moveSpeedModifier
+
+    def slowDown(self):
+        if self.following and self.getTargetDistance(self.followTarget.rect.center) < self.moveSpeed:
+            self.moveSpeedModifier -= .1
+    
+    def getFollowTarget(self):
+        if self.following:
+            if self.getStillFollowing():
+                self.slowDown()
+                return self.followTarget
+            
+        self.moveSpeedModifier = 1
+        followCandidate = (45, 0)
+        for entity in self.group:
+            if self.getTargetDistance(entity.rect.center) > 500: continue
+            angle = abs(entity.direction.angle_to(self.direction))
+            if angle < followCandidate[0]:
+                followCandidate = (angle, entity)
         
+        if followCandidate[1] != 0:
+            self.following = True
+            return followCandidate[1]
+        else:
+            self.following = False
+            return None
+        
+    def getStillFollowing(self):
+        angle = abs(self.followTarget.direction.angle_to(self.direction))
+        followTargetDistance = self.followTarget.getTargetDistance(self.target)
+        targetDistance = self.getTargetDistance(self.target)
+        if angle <= 15 and followTargetDistance < targetDistance:
+            return True
+        else:
+            return False
 
     def getLOSRecursive(self, pos, targetPos, direction, distance = 9999, x = 1):
         if x > 999 or pos[0] < 0 or pos[1] < 0:
@@ -110,6 +162,10 @@ class Entity(pygame.sprite.Sprite):
     def setTarget(self, pos):
         if not self.isMoving:
             self.target = pos
+
+    def setSpriteGroup(self, group):
+        self.group = group
+        self.group.add(self)
 
 class Roman(Entity):
     def __init__(self, name, pos):

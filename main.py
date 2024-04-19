@@ -25,13 +25,11 @@ if __name__ == "__main__":
     pygame.display.set_caption("Roman Fort Game")
 
     cameraGroup = CameraGroup()
-    player = Roman("Player", (1000, 1000))
-    cameraGroup.add(player)
 
     x = 0
-    while x < 150:
-        entity = Roman(x, (1000, 1000))
-        cameraGroup.add(entity)
+    while x < 75:
+        entity = Roman(x, (random.randint(WORLD_WIDTH // 2 - 50, WORLD_WIDTH // 2 + 50), random.randint(WORLD_HEIGHT // 2 -50, WORLD_HEIGHT // 2 + 50)))
+        entity.setSpriteGroup(cameraGroup)
         x += 1
 
     cameraGroup.update(grid)
@@ -42,17 +40,17 @@ if __name__ == "__main__":
             if event.type == pygame.QUIT:
                 running = False
             
-        cameraGroup.customDraw(grid.currentImage, player)
+        cameraGroup.customDraw(grid.currentImage)
         cameraGroup.update(grid)
 
         for entity in cameraGroup:
-            target = grid.cells[(random.randint(0, 125), random.randint(0,125))].getPixelLocation()
+            target = grid.cells[(random.randint(25, 75), random.randint(25,75))].getPixelLocation()
             entity.setTarget(target)
 
 
 
         pygame.display.update()
-        print(clock.get_fps())
+        #print(clock.get_fps())
         clock.tick(60)
 
 
