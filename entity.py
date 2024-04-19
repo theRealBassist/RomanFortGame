@@ -33,10 +33,12 @@ class Entity(pygame.sprite.Sprite):
         targetPos = pygame.math.Vector2(pos)
         
         return selfPos.distance_to(targetPos)
-    
-    def getTargetAngle(self, target):
-        entityDirection = self.getTargetDirection(target.rect.center)
-        angle = self.direction.angle_to(entityDirection)
+
+    #this is used to find the angle difference between the straight-line path to the current target and the current direction of the followTarget
+    def getTargetAngleToCurrentTarget(self, target):
+        selfAngleToTarget = self.getTargetDirection(self.target)
+        followTargetCurrentDirection = target.direction
+        angle = abs(selfAngleToTarget.angle_to(followTargetCurrentDirection))
 
         return angle
 
@@ -78,14 +80,13 @@ class Entity(pygame.sprite.Sprite):
         self.rect.center += self.direction * self.moveSpeed
     
     def getFollowTarget(self):
-        if self.following:
-            if self.getStillFollowing():
-                return self.followTarget
-            
+
+        if self.getStillFollowing(): return self.followTarget
+
         followCandidate = (15, 0)
         for entity in self.group:
             if self.getTargetDistance(entity.rect.center) > 100 or self.getTargetDistance(entity.rect.center) < 2: continue
-            angle = self.getTargetAngle(entity)
+            angle = self.getTargetAngleToCurrentTarget(entity)
             if angle < followCandidate[0] and angle > 2:
                 followCandidate = (angle, entity)
         
@@ -99,10 +100,13 @@ class Entity(pygame.sprite.Sprite):
             return None
         
     def getStillFollowing(self):
-        angle = abs(self.followTarget.direction.angle_to(self.getTargetDirection(self.target)))
+        if not self.following: return False
+
+        angle = self.getTargetAngleToCurrentTarget(self.followTarget)
         followTargetDistance = self.followTarget.getTargetDistance(self.target)
         targetDistance = self.getTargetDistance(self.target)
-        if angle <= 45 and followTargetDistance < targetDistance:
+
+        if angle <= 30 and followTargetDistance < targetDistance:
             return True
         else:
             return False
