@@ -26,11 +26,9 @@ if __name__ == "__main__":
 
     cameraGroup = CameraGroup()
 
-    x = 0
-    while x < 75:
-        entity = Roman(x, (random.randint(WORLD_WIDTH // 2 - 50, WORLD_WIDTH // 2 + 50), random.randint(WORLD_HEIGHT // 2 -50, WORLD_HEIGHT // 2 + 50)))
+    for x, __ in enumerate(range(50)):
+        entity = Roman(x, (random.randint(WORLD_WIDTH // 2 - 150, WORLD_WIDTH // 2 + 150), random.randint(WORLD_HEIGHT // 2 -150, WORLD_HEIGHT // 2 + 150)))
         entity.setSpriteGroup(cameraGroup)
-        x += 1
 
     cameraGroup.update(grid)
 
@@ -39,17 +37,20 @@ if __name__ == "__main__":
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            
+        
+
+
         cameraGroup.customDraw(grid.currentImage)
         cameraGroup.update(grid)
+        
 
         for entity in cameraGroup:
-            target = grid.cells[(random.randint(25, 75), random.randint(25,75))].getPixelLocation()
+            target = grid.cells[(random.randint(0, 125), random.randint(0,125))].getPixelLocation()
             entity.setTarget(target)
 
 
 
-        pygame.display.update()
+        pygame.display.flip()
         #print(clock.get_fps())
         clock.tick(60)
 

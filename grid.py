@@ -36,7 +36,7 @@ class Grid:
                         tileIndex = self.getTileIndexForType(tileCornerTypes, terrainType)
                         image = self.terrainTiles[terrainType][tileIndex]
                         impassable = False
-                        if terrainType >= 5 or terrainType < 3 : impassable = True
+                        if terrainType >= 5 or terrainType < 3 : impassable = True 
                         cell = Cell(TILESIZE, (x, y), image, terrainType, impassable)
                         self.cells[(x, y)] = cell
                         break
@@ -73,7 +73,7 @@ class Grid:
         if index >= len(nearbyCells):
             return minimum[1]
         
-        cellPixelPos = nearbyCells[index].getPosition()
+        cellPixelPos = nearbyCells[index].getPixelLocation()
         cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
         distance = pos.distance_to(cellVectorPos)
         if minimum[0] > distance: 
@@ -85,7 +85,7 @@ class Grid:
         gridPos = (math.ceil(pos[0] / TILESIZE), math.ceil(pos[1] / TILESIZE))
         if gridPos[0] < 1 :  gridPos = (gridPos[0] + 1, gridPos[1])
         if gridPos[1] < 1 : gridPos = (gridPos[0], gridPos[1] + 1)
-        gridVectorPos = pygame.math.Vector2(self.cells[gridPos].getPosition())
+        gridVectorPos = pygame.math.Vector2(self.cells[gridPos].getPixelLocation())
 
         if vectorPos.distance_to(gridVectorPos) < TILESIZE / 2:
             return self.cells[gridPos]
@@ -101,15 +101,13 @@ class Cell(pygame.sprite.Sprite):
         self.size = size
         self.terrainType = terrainType
         self.image = image.convert()
-        self.rect = self.image.get_rect(center = (pos[0] * TILESIZE, pos[1] * TILESIZE))
         self.impassable = impassable
+        self.pos = pos
+        if self.impassable: self.rect = self.image.get_rect(center = (pos[0] * TILESIZE, pos[1] * TILESIZE))
         
     
     def getGridLocation(self):
         return (self.rect.center[0] / TILESIZE, self.rect.center[1] / TILESIZE)
 
     def getPixelLocation(self):
-        return (self.rect.center)
-
-    def getPosition(self):
-        return self.rect.center
+        return (self.pos[0] * TILESIZE, self.pos[1] * TILESIZE)

@@ -11,7 +11,7 @@ class CameraGroup(pygame.sprite.Group):
         self.halfWidth = self.displaySurface.get_size()[0] // 2
         self.halfHeight = self.displaySurface.get_size()[1] // 2
 
-        self.cameraBorders = {"left": 100, "right": 100, "top": 100, "bottom": 100}
+        self.cameraBorders = {"left": 50, "right": 50, "top": 50, "bottom": 50}
         left = self.cameraBorders["left"]
         top = self.cameraBorders["top"]
         width = WINDOW_WIDTH - self.cameraBorders["left"] - self.cameraBorders["right"]
@@ -56,7 +56,7 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = self.cameraRect.left - self.cameraBorders["left"]
         self.offset.y = self.cameraRect.top - self.cameraBorders["top"]
     
-    def customDraw(self, surface, player = None):
+    def customDraw(self, surface):
 
         #self.centerTargetCamera(player)
         #self.boxTargetCamera(player)
@@ -70,3 +70,5 @@ class CameraGroup(pygame.sprite.Group):
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
             offsetPos = sprite.rect.topleft - self.offset
             self.displaySurface.blit(sprite.image, offsetPos)
+        
+        
