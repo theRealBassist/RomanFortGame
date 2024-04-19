@@ -26,7 +26,7 @@ if __name__ == "__main__":
 
     cameraGroup = CameraGroup()
 
-    for x, __ in enumerate(range(50)):
+    for x, __ in enumerate(range(25)):
         entity = Roman(x, (random.randint(WORLD_WIDTH // 2 - 150, WORLD_WIDTH // 2 + 150), random.randint(WORLD_HEIGHT // 2 -150, WORLD_HEIGHT // 2 + 150)))
         entity.setSpriteGroup(cameraGroup)
 
@@ -39,10 +39,10 @@ if __name__ == "__main__":
                 running = False
         
 
-
-        cameraGroup.customDraw(grid.currentImage)
-        cameraGroup.update(grid)
         
+        cameraGroup.customDraw(grid.currentImage, cameraGroup.sprites()[0])
+        
+        cameraGroup.update(grid)
 
         for entity in cameraGroup:
             target = grid.cells[(random.randint(0, 125), random.randint(0,125))].getPixelLocation()

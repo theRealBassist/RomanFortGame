@@ -10,6 +10,7 @@ class Grid:
         self.tileSheet = pygame.image.load(TERRAIN_TILESHEET)
         #self.spriteSheet = Spritesheet(TERRAIN_TILESHEET) 
         self.cells = dict()
+        self.collisionList = []
         self.terrainTiles = []
         self.currentImage = self.displaySurface.copy()
         for terrainType in ALL_TERRAIN_TYPES:
@@ -35,9 +36,11 @@ class Grid:
                     if terrainType in tileCornerTypes:
                         tileIndex = self.getTileIndexForType(tileCornerTypes, terrainType)
                         image = self.terrainTiles[terrainType][tileIndex]
-                        impassable = False
-                        if terrainType >= 5 or terrainType < 3 : impassable = True 
-                        cell = Cell(TILESIZE, (x, y), image, terrainType, impassable)
+                        if terrainType >= 5 or terrainType < 3 : 
+                            cell = Cell(TILESIZE, (x, y), image, terrainType, True)
+                            self.collisionList.append(cell)
+                        else:
+                            cell = Cell(TILESIZE, (x, y), image, terrainType, False)
                         self.cells[(x, y)] = cell
                         break
                 self.displaySurface.blit(image, (x * TILESIZE, y * TILESIZE))
@@ -50,9 +53,51 @@ class Grid:
                     tileIndex += 2 ** power
         return tileIndex
     
+    def getCellsOnVector(self, start, end):
+        cellsOnVector = dict()
+
+        startingCell = self.getCell(start)
+        endingCell = self.getCell(end)
+
+        for cell in self.getNearbyCells(startingCell.getGridLocation()):
+            if cell.impassable: cellsOnVector[cell.rect.center] = cell
+        for cell in self.getNearbyCells(endingCell.getGridLocation()):
+            if cell.impassable: cellsOnVector[cell.rect.center] = cell
+
+        startVector  = pygame.math.Vector2(start)
+        #23, 45
+        endVector = pygame.math.Vector2(end)
+        #45, 32
+        direction = pygame.math.Vector2(endVector.x - startVector.x, endVector.y - startVector.y)
+        #45 - 23, 32 - 45
+        #22, -13
+        length = startVector.distance_to(endVector)
+        #
+        if direction.length() > 0 : 
+            direction = direction.normalize()
+        else: 
+            return self.getNearbyCells(self.getCell(start))
+        
+        for x, __ in enumerate(range(int(length)), start=1):
+            position = self.getCell(startVector + (direction * x))
+            nearbyCells = self.getNearbyCells(position.getGridLocation())
+            for cell in nearbyCells:
+                if cell.impassable:
+                    cellsOnVector[cell.rect.center] = cell
+        
+        return list(cellsOnVector.values())
+
+
+
+
+
+    
     def getNearbyCells(self, gridPos):
-        x = gridPos[0]
-        y = gridPos[1]
+        x, y = gridPos[0], gridPos[1]
+        if x <= 0: x = 1
+        if x >= WORLD_X: x -= 1
+        if y <= 0: y = 1
+        if y >= WORLD_Y: y -=1
         nearbyCells = []
 
         #nearbyCells.append(self.cells[(x - 1, y - 1)])
@@ -103,11 +148,11 @@ class Cell(pygame.sprite.Sprite):
         self.image = image.convert()
         self.impassable = impassable
         self.pos = pos
-        if self.impassable: self.rect = self.image.get_rect(center = (pos[0] * TILESIZE, pos[1] * TILESIZE))
+        self.rect = self.image.get_rect(center = (pos[0] * TILESIZE, pos[1] * TILESIZE))
         
     
     def getGridLocation(self):
-        return (self.rect.center[0] / TILESIZE, self.rect.center[1] / TILESIZE)
+        return (self.pos)
 
     def getPixelLocation(self):
-        return (self.pos[0] * TILESIZE, self.pos[1] * TILESIZE)
+        return (self.rect.center)
