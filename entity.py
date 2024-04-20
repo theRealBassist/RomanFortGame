@@ -93,6 +93,8 @@ class Entity(pygame.sprite.Sprite):
                 distanceToTarget = self.getTargetDistance(self.followTarget.getPosition())
                 direction = self.direction.lerp(directionToTarget, .85).normalize()
                 targetLOS = self.getLOS(self.followTarget.getPosition())
+                if not targetLOS:
+                    self.stopFollowing()
             
             if targetLOS:
                 self.direction = direction                   
