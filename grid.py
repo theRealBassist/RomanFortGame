@@ -93,7 +93,12 @@ class Grid:
     
     def getCell(self, pos):
         gridPos = (round(abs((pos[0] - (TILESIZE / 2))) / TILESIZE), round((abs(pos[1] - (TILESIZE / 2))) / TILESIZE))
-        return self.cells[gridPos]
+        x, y = gridPos[0], gridPos[1]
+        if x < 1 : x = 1
+        if y < 1 : y = 1
+        if x >= WORLD_X - 1 : x = WORLD_X - 2
+        if y >= WORLD_Y - 1 : y = WORLD_Y - 2
+        return self.cells[(x, y)]
 
 
 

@@ -92,7 +92,9 @@ class Entity(pygame.sprite.Sprite):
                 directionToTarget = self.getTargetDirection(self.followTarget.getPosition())
                 distanceToTarget = self.getTargetDistance(self.followTarget.getPosition())
                 direction = self.direction.lerp(directionToTarget, .85).normalize()
-                directionPosition = (direction * 5) * (self.getTargetDistance(self.followTarget.getPosition()))
+                modifier = 1
+                if distanceToTarget < 2 : modifier = 5
+                directionPosition = (direction * modifier) * (self.getTargetDistance(distanceToTarget))
                 targetLOS = self.getLOS(directionPosition)
                 #targetLOS = self.getLOS(self.followTarget.getPosition())
                 if not targetLOS:
