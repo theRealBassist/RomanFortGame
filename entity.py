@@ -15,7 +15,7 @@ class Entity(pygame.sprite.Sprite):
         self.moveSpeed = moveSpeed
         self.direction = None
         self.rect = self.image.get_rect(center = pos) 
-        self.gridPos = (math.ceil(pos[0] / TILESIZE), math.ceil(pos[1] / TILESIZE))
+        self.gridPos = (round(abs((pos[0] - (TILESIZE / 2))) / TILESIZE), round((abs(pos[1] - (TILESIZE / 2))) / TILESIZE))
         self.isMoving = False
         self.target = None
         self.followTarget = None
@@ -150,11 +150,12 @@ class Entity(pygame.sprite.Sprite):
             return False
         
         #need to optimize this 
-        cellsOnVector = self.grid.getCellsOnVector(self.getPosition(), pos)
+        
         
         ray = pygame.draw.line(self.grid.displaySurface, "red", self.getPosition(), pos)
-        collision = ray.collideobjects(cellsOnVector, key = lambda r: r.rect)
-        if collision:
+        cellsOnVector = self.grid.getCellsOnVectorCollision(self.getPosition(), pos, ray)
+        #collision = ray.collideobjects(cellsOnVector, key = lambda r: r.rect)
+        if cellsOnVector:
             return False
         if self.cellCurrent.impassable: 
             print("missed me")

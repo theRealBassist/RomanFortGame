@@ -51,18 +51,10 @@ class Grid:
         for power, cornerType in enumerate(tileCorners):
                 if cornerType == terrainType:
                     tileIndex += 2 ** power
-        return tileIndex
-    
-    def getCellsOnVector(self, start, end):
-        cellsOnVector = dict()
-
-        startingCell = self.getCell(start)
-        endingCell = self.getCell(end)
-
-        for cell in self.getNearbyCells(startingCell.getGridLocation()):
-            if cell.impassable: cellsOnVector[cell.rect.center] = cell
-        for cell in self.getNearbyCells(endingCell.getGridLocation()):
-            if cell.impassable: cellsOnVector[cell.rect.center] = cell
+        return tileIndex        
+        
+    def getCellsOnVectorCollision(self, start, end, ray):
+        cellsOnVector = []
 
         startVector  = pygame.math.Vector2(start)
         endVector = pygame.math.Vector2(end)
@@ -73,14 +65,15 @@ class Grid:
         else: 
             return self.getNearbyCells(self.getCell(start))
         
-        for x, __ in enumerate(range(int(length)), start=1):
+        for x in range(int(length)):
             position = self.getCell(startVector + (direction * x))
             nearbyCells = self.getNearbyCells(position.getGridLocation())
             for cell in nearbyCells:
                 if cell.impassable:
-                    cellsOnVector[cell.rect.center] = cell
+                    if ray.colliderect(cell.rect):
+                        return True
         
-        return list(cellsOnVector.values())
+        return cellsOnVector
     
     def getNearbyCells(self, gridPos):
         x, y = gridPos[0], gridPos[1]
@@ -102,31 +95,10 @@ class Grid:
         #nearbyCells.append(self.cells[(x + 1, y + 1)])
         
         return nearbyCells
-        
-
-    def getCellRecursive(self, pos, nearbyCells, index, minimum = (9999999999, 0)):
-        if index >= len(nearbyCells):
-            return minimum[1]
-        
-        cellPixelPos = nearbyCells[index].getPixelLocation()
-        cellVectorPos = pygame.math.Vector2(cellPixelPos[0], cellPixelPos[1])
-        distance = pos.distance_to(cellVectorPos)
-        if minimum[0] > distance: 
-                minimum = (distance, nearbyCells[index])
-        return self.getCellRecursive(pos, nearbyCells, index + 1, minimum)
-
+    
     def getCell(self, pos):
-        vectorPos = pygame.math.Vector2(pos)
-        gridPos = (math.ceil(pos[0] / TILESIZE), math.ceil(pos[1] / TILESIZE))
-        if gridPos[0] < 1 :  gridPos = (1, gridPos[1])
-        if gridPos[1] < 1 : gridPos = (gridPos[0], 1)
-        gridVectorPos = pygame.math.Vector2(self.cells[gridPos].getPixelLocation())
-
-        if vectorPos.distance_to(gridVectorPos) < TILESIZE / 2:
-            return self.cells[gridPos]
-        nearbyCells = self.getNearbyCells(gridPos)
-        nearestCell = self.getCellRecursive(vectorPos, nearbyCells, 0)
-        return nearestCell
+        gridPos = (round(abs((pos[0] - (TILESIZE / 2))) / TILESIZE), round((abs(pos[1] - (TILESIZE / 2))) / TILESIZE))
+        return self.cells[gridPos]
 
 
 
