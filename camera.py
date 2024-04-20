@@ -1,4 +1,4 @@
-import pygame, sys
+import pygame
 from config import *
 
 class CameraGroup(pygame.sprite.Group):

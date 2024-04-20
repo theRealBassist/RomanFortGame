@@ -1,6 +1,5 @@
 import pygame
 from spritesheet import Spritesheet
-import math
 from config import *
 import time
 import logging
@@ -141,24 +140,15 @@ class Entity(pygame.sprite.Sprite):
         else:
             self.stopFollowing()
             return False
-        
-    #def getLOSRecursive(self):
 
-    
     def getLOS(self, pos):
         if self.getTargetDistance(pos) > 500:
             return False
         
-        #need to optimize this 
-        
-        
         ray = pygame.draw.line(self.grid.displaySurface, "red", self.getPosition(), pos)
         cellsOnVector = self.grid.getCellsOnVectorCollision(self.getPosition(), pos, ray)
-        #collision = ray.collideobjects(cellsOnVector, key = lambda r: r.rect)
         if cellsOnVector:
             return False
-        if self.cellCurrent.impassable: 
-            print("missed me")
         return True
 
     def update(self, grid):

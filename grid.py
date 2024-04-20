@@ -1,8 +1,5 @@
 import pygame
-from spritesheet import Spritesheet
-import math
 from config import *
-from spritesheet import Spritesheet
 
 class Grid:
     def __init__(self):

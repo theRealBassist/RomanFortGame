@@ -1,6 +1,5 @@
 import pygame
-from spritesheet import Spritesheet
-from entity import Entity, Roman
+from entity import Roman
 from terrainGeneration import Generate
 from grid import Grid
 from camera import CameraGroup
