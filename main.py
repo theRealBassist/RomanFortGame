@@ -29,9 +29,11 @@ if __name__ == "__main__":
 
     cameraGroup = CameraGroup()
 
-    for x, __ in enumerate(range(50)):
-        entity = Roman(x, (random.randint(100, 1000), random.randint(100, 1000)))
-        entity.setSpriteGroup(cameraGroup)
+    for x, __ in enumerate(range(100)):
+        position = (random.randint(100, 1000), random.randint(100, 1000))
+        if not grid.getCell(position).impassable:
+            entity = Roman(x, position)
+            entity.setSpriteGroup(cameraGroup)
 
     logging.debug(f"WORLD_X = {WORLD_X}, WORLD_Y = {WORLD_Y}")
     cameraGroup.update(grid)
