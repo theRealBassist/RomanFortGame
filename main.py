@@ -31,7 +31,14 @@ if __name__ == "__main__":
 
     for x, __ in enumerate(range(100)):
         position = (random.randint(100, 1000), random.randint(100, 1000))
-        if not grid.getCell(position).impassable:
+        cell = grid.getCell(position)
+        nearbyCells = grid.getNearbyCells(cell.getGridLocation())
+        anyImpassable = False
+        for cell in nearbyCells:
+            if cell.impassable:
+                anyImpassable = True
+                break
+        if not anyImpassable:
             entity = Roman(x, position)
             entity.setSpriteGroup(cameraGroup)
 

@@ -75,7 +75,7 @@ class Entity(pygame.sprite.Sprite):
                 return
             direction = self.getTargetDirection(self.target) 
             if self.LOSCooldown <= 0: 
-                self.LOSCooldown = 3
+                self.LOSCooldown = 7
                 targetLOS = self.getLOS(self.target)
             else:
                 targetLOS = True
@@ -92,7 +92,9 @@ class Entity(pygame.sprite.Sprite):
                 directionToTarget = self.getTargetDirection(self.followTarget.getPosition())
                 distanceToTarget = self.getTargetDistance(self.followTarget.getPosition())
                 direction = self.direction.lerp(directionToTarget, .85).normalize()
-                targetLOS = self.getLOS(self.followTarget.getPosition())
+                directionPosition = (direction * 5) * (self.getTargetDistance(self.followTarget.getPosition()))
+                targetLOS = self.getLOS(directionPosition)
+                #targetLOS = self.getLOS(self.followTarget.getPosition())
                 if not targetLOS:
                     self.stopFollowing()
             
