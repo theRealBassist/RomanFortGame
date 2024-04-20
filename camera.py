@@ -1,8 +1,10 @@
 import pygame
 from config import *
+import logging
+import time
 
 class CameraGroup(pygame.sprite.Group):
-    def __init__(self):
+    def __init__(self, surface):
         super().__init__()
 
         self.displaySurface = pygame.display.get_surface()
@@ -11,14 +13,25 @@ class CameraGroup(pygame.sprite.Group):
         self.halfWidth = self.displaySurface.get_size()[0] // 2
         self.halfHeight = self.displaySurface.get_size()[1] // 2
 
-        self.cameraBorders = {"left": 50, "right": 50, "top": 50, "bottom": 50}
+        self.cameraBorders = {"left": 200, "right": 200, "top": 100, "bottom": 100}
         left = self.cameraBorders["left"]
         top = self.cameraBorders["top"]
-        width = WINDOW_WIDTH - self.cameraBorders["left"] - self.cameraBorders["right"]
-        height = WINDOW_HEIGHT - self.cameraBorders["top"] - self.cameraBorders["bottom"]
+        width = WINDOW_WIDTH - (self.cameraBorders["left"] - self.cameraBorders["right"])
+        height = WINDOW_HEIGHT - (self.cameraBorders["top"] - self.cameraBorders["bottom"])
         self.cameraRect = pygame.Rect(left, top, width, height)
+        self.zoomScale = 1
+        self.internalSurfSize = (2500,2500)
+        self.internalSurf = pygame.Surface(self.internalSurfSize, pygame.SRCALPHA)
+        self.internalRect = self.internalSurf.get_rect(center = (self.halfWidth, self.halfHeight))
+        self.internalSurfSizeVector = pygame.math.Vector2(self.internalSurfSize)
+        self.internalSurfOffset = pygame.math.Vector2()
+        self.internalSurfOffset.x = self.internalSurfSize[0] // 2 - self.halfWidth
+        self.internalSurfOffset.y = self.internalSurfSize[1] // 2 - self.halfHeight
 
         self.keyBoardSpeed = 5
+
+        self.groundSurface = surface
+        self.groundRect = self.groundSurface.get_rect(topleft = (0,0))
 
     def centerTargetCamera(self, target):
         if target.rect.centerx > self.halfWidth and target.rect.centerx < WORLD_WIDTH - self.halfWidth:
@@ -44,32 +57,52 @@ class CameraGroup(pygame.sprite.Group):
     def keyboardControl(self):
         keys = pygame.key.get_pressed()
 
-        if self.offset.x - self.cameraBorders["left"] > 0:
-            if keys[pygame.K_a]: self.cameraRect.x -= self.keyBoardSpeed
-        if self.offset.x + self.cameraBorders["right"] < WORLD_WIDTH:
-            if keys[pygame.K_d]: self.cameraRect.x += self.keyBoardSpeed
-        if self.offset.y - self.cameraBorders["top"] > 0:
-            if keys[pygame.K_w]: self.cameraRect.y -= self.keyBoardSpeed
-        if self.offset.y + self.cameraBorders["bottom"] < WORLD_HEIGHT:
-            if keys[pygame.K_s]: self.cameraRect.y += self.keyBoardSpeed
+        #if self.offset.x - self.cameraBorders["left"] > 0:
+        if keys[pygame.K_a]: 
+            self.cameraRect.x -= self.keyBoardSpeed
+        #if self.offset.x + self.cameraBorders["right"] < WORLD_WIDTH:
+        if keys[pygame.K_d]: 
+            self.cameraRect.x += self.keyBoardSpeed
+        #if self.offset.y - self.cameraBorders["top"] > 0:
+        if keys[pygame.K_w]: 
+            self.cameraRect.y -= self.keyBoardSpeed
+        #if self.offset.y + self.cameraBorders["bottom"] < WORLD_HEIGHT:
+        if keys[pygame.K_s]: 
+            self.cameraRect.y += self.keyBoardSpeed
 
         self.offset.x = self.cameraRect.left - self.cameraBorders["left"]
         self.offset.y = self.cameraRect.top - self.cameraBorders["top"]
     
-    def customDraw(self, surface, player = None, fps = None):
+    def zoomKeyboardControl(self):
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_q]:
+            self.zoomScale +=0.1
+        if keys[pygame.K_e]:
+            self.zoomScale -=0.1
 
-        self.centerTargetCamera(player)
+    def customDraw(self, player = None, fps = None):
+
+        #self.centerTargetCamera(player)
         #self.boxTargetCamera(player)
-        #self.keyboardControl()
+        self.keyboardControl()
 
-        self.groundSurface = surface
-        self.groundRect = self.groundSurface.get_rect(topleft = (0,0))
-        groundOffset = self.groundRect.topleft - self.offset
-        self.displaySurface.blit(self.groundSurface, groundOffset)
+        self.internalSurf.fill("green")
+
+        groundOffset = self.groundRect.topleft - self.offset  + self.internalSurfOffset
+        self.internalSurf.blit(self.groundSurface, groundOffset)
 
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
-            offsetPos = sprite.rect.topleft - self.offset
-            self.displaySurface.blit(sprite.image, offsetPos)
+            offsetPos = sprite.rect.topleft - self.offset + self.internalSurfOffset
+            self.internalSurf.blit(sprite.image, offsetPos)
+        
+        #start = time.perf_counter()
+        
+        scaledSurface = pygame.transform.scale(self.internalSurf, self.internalSurfSizeVector * self.zoomScale)
+        start = time.perf_counter()
+        scaledRect = scaledSurface.get_rect(center = (self.halfWidth, self.halfHeight))
+        self.displaySurface.blit(scaledSurface, scaledRect)
+        end = time.perf_counter()
+        logging.debug(f"Scaled display time took {end - start}")
             
         
         if fps is not None:

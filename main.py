@@ -32,10 +32,10 @@ if __name__ == "__main__":
 
     pygame.display.set_caption("Roman Fort Game")
 
-    cameraGroup = CameraGroup()
+    cameraGroup = CameraGroup(grid.displaySurface)
     
 
-    for x, __ in enumerate(range(75)):
+    for x, __ in enumerate(range(25)):
         position = (random.randint(100, 1000), random.randint(100, 1000))
         cell = grid.getCell(position)
         nearbyCells = grid.getNearbyCells(cell.getGridLocation())
@@ -50,20 +50,18 @@ if __name__ == "__main__":
     
     cameraGroup.add(trees.cells.values())
 
-    logging.debug(f"WORLD_X = {WORLD_X}, WORLD_Y = {WORLD_Y}")
+    #logging.debug(f"WORLD_X = {WORLD_X}, WORLD_Y = {WORLD_Y}")
     cameraGroup.update(grid)
 
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.MOUSEWHEEL:
+                cameraGroup.zoomScale += event.y * 0.03
         fps = clock.get_fps()
 
-        
-        cameraGroup.customDraw(grid.displaySurface, cameraGroup.sprites()[0], fps)
-        
-        
-
+        cameraGroup.customDraw(cameraGroup.sprites()[0], fps)
         for entity in cameraGroup:
             if type(entity) is not Cell:
                 target = grid.cells[random.randint(0, WORLD_X - 1), random.randint(0, WORLD_Y - 1)].getPixelLocation()

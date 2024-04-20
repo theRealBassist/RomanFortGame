@@ -26,7 +26,7 @@ class Entity(pygame.sprite.Sprite):
 
     def getAnimationDirection(self):
         x, y = self.direction.x, self.direction.y
-        logging.debug(f"with {x}, {y} direction, ")
+        #logging.debug(f"with {x}, {y} direction, ")
         if abs(x) > abs(y) - .15:
             if x < 0:
                 return 3
@@ -88,7 +88,7 @@ class Entity(pygame.sprite.Sprite):
     def move(self):
         start = time.perf_counter()
         if not self.target == None:
-            logging.debug(f"Entity {self.name} has a target of {self.target}")
+            #logging.debug(f"Entity {self.name} has a target of {self.target}")
             distanceToTarget = self.getTargetDistance(self.target)
             if distanceToTarget < 10: 
                 self.isMoving = False 
@@ -129,7 +129,7 @@ class Entity(pygame.sprite.Sprite):
                 self.setPosition(self.getPosition() + self.direction * self.moveSpeed)
         self.setAnimationFrame(self.walkAnimations[self.getAnimationDirection()])
         end = time.perf_counter()
-        logging.debug(f"Move executed in {end - start}")
+        #logging.debug(f"Move executed in {end - start}")
         self.LOSCooldown -= 1
 
     

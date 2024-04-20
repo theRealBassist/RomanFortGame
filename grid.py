@@ -5,6 +5,7 @@ from spritesheet import Spritesheet
 class Grid:
     def __init__(self):
         self.displaySurface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT), pygame.SRCALPHA)
+        self.displaySurface.fill("green")
         self.tileSheet = pygame.image.load(TERRAIN_TILESHEET)
         #self.spriteSheet = Spritesheet(TERRAIN_TILESHEET) 
         self.cells = dict()
@@ -19,6 +20,7 @@ class Grid:
 
     
     def drawTiles(self, terrainTileMap):
+        self.displaySurface.fill("green")
         for y, row in enumerate(terrainTileMap):
             for x, row in enumerate(row):
                 if x == WORLD_X or y == WORLD_Y:
