@@ -36,8 +36,6 @@ if __name__ == "__main__":
     logging.debug(f"WORLD_X = {WORLD_X}, WORLD_Y = {WORLD_Y}")
     cameraGroup.update(grid)
 
-
-
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:

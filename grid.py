@@ -60,7 +60,7 @@ class Grid:
         if direction.length() > 0 : 
             direction = direction.normalize()
         else: 
-            return self.getNearbyCells(self.getCell(start))
+            return self.getNearbyCells(self.getCell(start).getGridLocation())
         
         for x in range(int(length)):
             position = self.getCell(startVector + (direction * x))

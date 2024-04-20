@@ -19,6 +19,8 @@ class Entity(pygame.sprite.Sprite):
         self.target = None
         self.followTarget = None
         self.following = False
+        self.hasFailedLOS = True
+        self.followCooldown = 0
 
     def getTargetDirection(self, pos):
         selfPos = pygame.math.Vector2(self.getPosition())
@@ -52,6 +54,8 @@ class Entity(pygame.sprite.Sprite):
             self.target = None
 
     def stopFollowing(self):
+        self.followCooldown = 60
+        self.hasFailedLOS = True
         self.following = False
         self.followTarget = None
         self.image = self.defaultSprite
@@ -71,13 +75,19 @@ class Entity(pygame.sprite.Sprite):
                 self.target = None 
                 return
             direction = self.getTargetDirection(self.target) 
-            targetLOS = self.getLOS(self.target)
+            if self.hasFailedLOS: 
+                targetLOS = self.getLOS(self.target)
+            else:
+                targetLOS = True
             if not targetLOS: 
                 self.isMoving = False
                 self.target = None
                 return
-            if not self.getStillFollowing():
-               self.getFollowTarget()
+            if self.followCooldown <= 0:
+                if not self.getStillFollowing():
+                    self.getFollowTarget()
+            else:
+                self.followCooldown -= 1
             if self.following and self.direction is not None:
                 directionToTarget = self.getTargetDirection(self.followTarget.getPosition())
                 distanceToTarget = self.getTargetDistance(self.followTarget.getPosition())
@@ -128,6 +138,7 @@ class Entity(pygame.sprite.Sprite):
             return False
 
         if self.getTargetDistance(self.followTarget.getPosition()) < 10:
+            self.stopFollowing()
             return False
 
         angle = self.getTargetAngleToCurrentTarget(self.followTarget)
@@ -143,12 +154,15 @@ class Entity(pygame.sprite.Sprite):
 
     def getLOS(self, pos):
         if self.getTargetDistance(pos) > 500:
+            self.hasFailedLOS = True
             return False
         
         ray = pygame.draw.line(self.grid.displaySurface, "red", self.getPosition(), pos)
         cellsOnVector = self.grid.getCellsOnVectorCollision(self.getPosition(), pos, ray)
         if cellsOnVector:
+            self.hasFailedLOS = True
             return False
+        self.hasFailedLOS = False
         return True
 
     def update(self, grid):
