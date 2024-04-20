@@ -8,6 +8,7 @@ class Entity(pygame.sprite.Sprite):
 
     def __init__(self, name, sprite, pos, moveSpeed):
         pygame.sprite.Sprite.__init__(self)
+        self.surface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT), pygame.SRCALPHA)
         self.name = name
         self.defaultSprite = sprite
         self.image =  sprite
@@ -21,6 +22,26 @@ class Entity(pygame.sprite.Sprite):
         self.following = False
         self.LOSCooldown = 0
         self.followCooldown = 0
+        self.animationCounter = 0
+
+    def getAnimationDirection(self):
+        x, y = self.direction.x, self.direction.y
+        logging.debug(f"with {x}, {y} direction, ")
+        if abs(x) > abs(y) - .15:
+            if x < 0:
+                return 3
+            else:
+                return 2
+        else:
+            if y < 0:
+                return 0
+            else:
+                return 1
+    
+    def setAnimationFrame(self, animation):
+        if self.animationCounter >= list(animation.keys())[-1]: self.animationCounter = 0
+        self.image = animation[self.animationCounter]
+        self.animationCounter += 1
 
     def getTargetDirection(self, pos):
         selfPos = pygame.math.Vector2(self.getPosition())
@@ -96,7 +117,6 @@ class Entity(pygame.sprite.Sprite):
                 if distanceToTarget < 2 : modifier = 5
                 directionPosition = (direction * modifier) * (self.getTargetDistance(distanceToTarget))
                 targetLOS = self.getLOS(directionPosition)
-                #targetLOS = self.getLOS(self.followTarget.getPosition())
                 if not targetLOS:
                     self.stopFollowing()
             
@@ -107,6 +127,7 @@ class Entity(pygame.sprite.Sprite):
                 self.target = None
             if self.direction is not None:    
                 self.setPosition(self.getPosition() + self.direction * self.moveSpeed)
+        self.setAnimationFrame(self.walkAnimations[self.getAnimationDirection()])
         end = time.perf_counter()
         logging.debug(f"Move executed in {end - start}")
         self.LOSCooldown -= 1
@@ -120,11 +141,12 @@ class Entity(pygame.sprite.Sprite):
         followCandidate = (35, 0)
         
         for entity in self.group:
-            entityPosition = entity.getPosition()
-            if self.getTargetDistance(entityPosition) > 100 or self.getTargetDistance(entityPosition) < 2 or entity.direction is None: continue
-            angle = self.getTargetAngleToCurrentTarget(entity)
-            if angle < followCandidate[0] and angle > 2:
-                followCandidate = (angle, entity)
+            if type(entity) is Entity:
+                entityPosition = entity.getPosition()
+                if self.getTargetDistance(entityPosition) > 100 or self.getTargetDistance(entityPosition) < 2 or entity.direction is None: continue
+                angle = self.getTargetAngleToCurrentTarget(entity)
+                if angle < followCandidate[0] and angle > 2:
+                    followCandidate = (angle, entity)
         
         if followCandidate[1] != 0:
             self.startFollowing(followCandidate[1])
@@ -163,8 +185,7 @@ class Entity(pygame.sprite.Sprite):
         if self.getTargetDistance(pos) > 500:
             self.LOSCooldown = 0
             return False
-        
-        ray = pygame.draw.line(self.grid.displaySurface, "red", self.getPosition(), pos)
+        ray = pygame.draw.line(self.surface, (0, 0, 0, 255), self.getPosition(), pos, width=1)
         cellsOnVector = self.grid.getCellsOnVectorCollision(self.getPosition(), pos, ray)
         if cellsOnVector:
             self.LOSCooldown = 0
@@ -198,7 +219,13 @@ class Entity(pygame.sprite.Sprite):
 class Roman(Entity):
     def __init__(self, name, pos):
         romanSpriteSheet = Spritesheet("assets/sprites/roman_test/blue/blue.png")
-        image = romanSpriteSheet.parseSprite("Walk/Walk_South_0.png").convert()
+        self.defaultSprite = romanSpriteSheet.parseSprite("Walk/Walk_South_0.png").convert()
+        
+        walkNorthAnimation = romanSpriteSheet.getAnimationFrames("Walk/Walk_North", 4)
+        walkSouthAnimation = romanSpriteSheet.getAnimationFrames("Walk/Walk_South", 4)
+        walkEastAnimation = romanSpriteSheet.getAnimationFrames("Walk/Walk_East", 4)
+        walkWestAnimation = romanSpriteSheet.getAnimationFrames("Walk/Walk_West", 4)
+        self.walkAnimations = [walkNorthAnimation, walkSouthAnimation, walkEastAnimation, walkWestAnimation]
         self.attackSprite = romanSpriteSheet.parseSprite("Battle Axe & Shield/Attack/AttackSwing_East_0.png").convert()
-        Entity.__init__(self, name, image, pos, 3)
+        Entity.__init__(self, name, self.defaultSprite, pos, 3)
         

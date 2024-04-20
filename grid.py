@@ -1,9 +1,10 @@
 import pygame
 from config import *
+from spritesheet import Spritesheet
 
 class Grid:
     def __init__(self):
-        self.displaySurface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT))
+        self.displaySurface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT), pygame.SRCALPHA)
         self.tileSheet = pygame.image.load(TERRAIN_TILESHEET)
         #self.spriteSheet = Spritesheet(TERRAIN_TILESHEET) 
         self.cells = dict()
@@ -99,6 +100,26 @@ class Grid:
         if x >= WORLD_X - 1 : x = WORLD_X - 2
         if y >= WORLD_Y - 1 : y = WORLD_Y - 2
         return self.cells[(x, y)]
+
+
+class Forest():
+    def __init__(self):
+        self.displaySurface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT))
+        self.tileSheet = Spritesheet("assets/sprites/terrain/nature.png")
+        self.image = self.tileSheet.parseSprite("tree_light")
+        self.cells = dict()
+    
+    def drawTiles(self, terrainTileMap, grid):
+        for y, row in enumerate(terrainTileMap):
+            for x, column in enumerate(row):
+                if x == WORLD_X or y == WORLD_Y:
+                    continue
+                print(f"{column}, {x}")
+                if column >= 5 and not grid.cells[(x, y)].impassable:
+                    print("True")
+                    cell = Cell(TILESIZE, (x, y), self.image, "tree", False)
+                    self.cells[(x,y)] = cell
+
 
 
 

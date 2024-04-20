@@ -1,7 +1,7 @@
 import pygame
 from entity import Roman
 from terrainGeneration import Generate
-from grid import Grid
+from grid import Grid, Forest, Cell
 from camera import CameraGroup
 from config import *
 import random
@@ -16,20 +16,26 @@ if __name__ == "__main__":
     clock = pygame.time.Clock()
     running = True
 
-    screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT))
+    screen = pygame.display.set_mode((WINDOW_WIDTH, WINDOW_HEIGHT), pygame.SRCALPHA)
 
     seed = random.randint(0,256)
 
-    terrain = Generate(WORLD_X, WORLD_Y, random.randint(0,256))
+    terrain = Generate(WORLD_X, WORLD_Y, random.randint(0,1000))
+    
     grid = Grid()
     grid.drawTiles(terrain.tileMap)
+
+    treesMap = Generate(WORLD_X, WORLD_Y, random.randint(0,1000))
+    trees = Forest()
+    trees.drawTiles(treesMap.tileMap, grid)
     map = grid.currentImage
 
     pygame.display.set_caption("Roman Fort Game")
 
     cameraGroup = CameraGroup()
+    
 
-    for x, __ in enumerate(range(100)):
+    for x, __ in enumerate(range(75)):
         position = (random.randint(100, 1000), random.randint(100, 1000))
         cell = grid.getCell(position)
         nearbyCells = grid.getNearbyCells(cell.getGridLocation())
@@ -41,6 +47,8 @@ if __name__ == "__main__":
         if not anyImpassable:
             entity = Roman(x, position)
             entity.setSpriteGroup(cameraGroup)
+    
+    cameraGroup.add(trees.cells.values())
 
     logging.debug(f"WORLD_X = {WORLD_X}, WORLD_Y = {WORLD_Y}")
     cameraGroup.update(grid)
@@ -52,13 +60,14 @@ if __name__ == "__main__":
         fps = clock.get_fps()
 
         
-        cameraGroup.customDraw(grid.currentImage, cameraGroup.sprites()[0], fps)
+        cameraGroup.customDraw(grid.displaySurface, cameraGroup.sprites()[0], fps)
         
         
 
         for entity in cameraGroup:
-            target = grid.cells[random.randint(0, WORLD_X - 1), random.randint(0, WORLD_Y - 1)].getPixelLocation()
-            entity.setTarget(target)
+            if type(entity) is not Cell:
+                target = grid.cells[random.randint(0, WORLD_X - 1), random.randint(0, WORLD_Y - 1)].getPixelLocation()
+                entity.setTarget(target)
 
         cameraGroup.update(grid)
 

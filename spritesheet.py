@@ -4,7 +4,7 @@ import json
 class Spritesheet:
     def __init__(self, filename):
         self.filename = filename
-        self.spriteSheet = pygame.image.load(filename).convert()
+        self.spriteSheet = pygame.image.load(filename).convert_alpha()
         self.metaData = self.filename.replace("png", "json")
         with open(self.metaData) as f:
             self.data = json.load(f)
@@ -21,3 +21,9 @@ class Spritesheet:
         x, y, w, h = sprite["x"], sprite["y"], sprite["w"], sprite["h"]
         image = self.getSprite(x, y, w, h)
         return image
+    
+    def getAnimationFrames(self, name, count):
+        animationFrames = dict()
+        for frame, _ in enumerate(range(count)):
+            animationFrames[frame] = self.parseSprite(f"{name}_{frame}.png").convert_alpha()
+        return animationFrames
