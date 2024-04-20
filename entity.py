@@ -19,7 +19,7 @@ class Entity(pygame.sprite.Sprite):
         self.target = None
         self.followTarget = None
         self.following = False
-        self.hasFailedLOS = True
+        self.LOSCooldown = 0
         self.followCooldown = 0
 
     def getTargetDirection(self, pos):
@@ -55,7 +55,6 @@ class Entity(pygame.sprite.Sprite):
 
     def stopFollowing(self):
         self.followCooldown = 60
-        self.hasFailedLOS = True
         self.following = False
         self.followTarget = None
         self.image = self.defaultSprite
@@ -75,7 +74,8 @@ class Entity(pygame.sprite.Sprite):
                 self.target = None 
                 return
             direction = self.getTargetDirection(self.target) 
-            if self.hasFailedLOS: 
+            if self.LOSCooldown <= 0: 
+                self.LOSCooldown = 3
                 targetLOS = self.getLOS(self.target)
             else:
                 targetLOS = True
@@ -105,6 +105,7 @@ class Entity(pygame.sprite.Sprite):
                 self.setPosition(self.getPosition() + self.direction * self.moveSpeed)
         end = time.perf_counter()
         logging.debug(f"Move executed in {end - start}")
+        self.LOSCooldown -= 1
 
     
     def getFollowTarget(self):
@@ -156,15 +157,14 @@ class Entity(pygame.sprite.Sprite):
 
     def getLOS(self, pos):
         if self.getTargetDistance(pos) > 500:
-            self.hasFailedLOS = True
+            self.LOSCooldown = 0
             return False
         
         ray = pygame.draw.line(self.grid.displaySurface, "red", self.getPosition(), pos)
         cellsOnVector = self.grid.getCellsOnVectorCollision(self.getPosition(), pos, ray)
         if cellsOnVector:
-            self.hasFailedLOS = True
+            self.LOSCooldown = 0
             return False
-        self.hasFailedLOS = False
         return True
 
     def update(self, grid):

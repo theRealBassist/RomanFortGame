@@ -51,8 +51,6 @@ class Grid:
         return tileIndex        
         
     def getCellsOnVectorCollision(self, start, end, ray):
-        cellsOnVector = []
-
         startVector  = pygame.math.Vector2(start)
         endVector = pygame.math.Vector2(end)
         direction = pygame.math.Vector2(endVector.x - startVector.x, endVector.y - startVector.y)
@@ -60,9 +58,9 @@ class Grid:
         if direction.length() > 0 : 
             direction = direction.normalize()
         else: 
-            return self.getNearbyCells(self.getCell(start).getGridLocation())
+            return True
         
-        for x in range(int(length)):
+        for x in range(-1, int(length)):
             position = self.getCell(startVector + (direction * x))
             nearbyCells = self.getNearbyCells(position.getGridLocation())
             for cell in nearbyCells:
@@ -70,7 +68,7 @@ class Grid:
                     if ray.colliderect(cell.rect):
                         return True
         
-        return cellsOnVector
+        return False
     
     def getNearbyCells(self, gridPos):
         x, y = gridPos[0], gridPos[1]
@@ -80,16 +78,16 @@ class Grid:
         if y >= WORLD_Y - 1 : y = WORLD_Y - 2
         nearbyCells = []
 
-        #nearbyCells.append(self.cells[(x - 1, y - 1)])
+        nearbyCells.append(self.cells[(x - 1, y - 1)])
         nearbyCells.append(self.cells[(x - 1, y)])
-        #nearbyCells.append(self.cells[(x - 1, y + 1)])
+        nearbyCells.append(self.cells[(x - 1, y + 1)])
 
         nearbyCells.append(self.cells[(x, y - 1)])
         nearbyCells.append(self.cells[(x, y + 1)])
 
-        #nearbyCells.append(self.cells[(x + 1, y - 1)])
+        nearbyCells.append(self.cells[(x + 1, y - 1)])
         nearbyCells.append(self.cells[(x + 1, y)])
-        #nearbyCells.append(self.cells[(x + 1, y + 1)])
+        nearbyCells.append(self.cells[(x + 1, y + 1)])
         
         return nearbyCells
     
