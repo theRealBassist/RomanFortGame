@@ -116,9 +116,7 @@ class Forest():
             for x, column in enumerate(row):
                 if x == WORLD_X or y == WORLD_Y:
                     continue
-                print(f"{column}, {x}")
                 if column >= 5 and not grid.cells[(x, y)].impassable:
-                    print("True")
                     cell = Cell(TILESIZE, (x, y), self.image, "tree", False)
                     self.cells[(x,y)] = cell
 

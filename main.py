@@ -59,6 +59,8 @@ if __name__ == "__main__":
                 running = False
             if event.type == pygame.MOUSEWHEEL:
                 cameraGroup.zoomScale += event.y * 0.03
+                logging.debug(f"Zoom change of {event.y}")
+                cameraGroup.changedZoom = True
         fps = clock.get_fps()
 
         cameraGroup.customDraw(cameraGroup.sprites()[0], fps)

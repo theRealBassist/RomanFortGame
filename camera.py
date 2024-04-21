@@ -27,6 +27,8 @@ class CameraGroup(pygame.sprite.Group):
         self.internalSurfOffset = pygame.math.Vector2()
         self.internalSurfOffset.x = self.internalSurfSize[0] // 2 - self.halfWidth
         self.internalSurfOffset.y = self.internalSurfSize[1] // 2 - self.halfHeight
+        
+        self.changedZoom = True
 
         self.keyBoardSpeed = 5
 
@@ -94,17 +96,13 @@ class CameraGroup(pygame.sprite.Group):
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
             offsetPos = sprite.rect.topleft - self.offset + self.internalSurfOffset
             self.internalSurf.blit(sprite.image, offsetPos)
-        
-        #start = time.perf_counter()
-        
-        scaledSurface = pygame.transform.scale(self.internalSurf, self.internalSurfSizeVector * self.zoomScale)
-        start = time.perf_counter()
-        scaledRect = scaledSurface.get_rect(center = (self.halfWidth, self.halfHeight))
-        self.displaySurface.blit(scaledSurface, scaledRect)
-        end = time.perf_counter()
-        logging.debug(f"Scaled display time took {end - start}")
             
-        
+        self.scaledSurface = pygame.transform.scale(self.internalSurf, self.internalSurfSizeVector * self.zoomScale)
+        self.scaledRect = self.scaledSurface.get_rect(center = (self.halfWidth, self.halfHeight))
+        logging.debug(f"changedZoom = {self.zoomScale}")
+        self.displaySurface.blit(self.scaledSurface, self.scaledRect)
+
+
         if fps is not None:
             font = pygame.font.SysFont("Verdana", 20)
             self.displaySurface.blit (font.render((str(int(fps))), True, "black"), (10, 10))
