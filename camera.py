@@ -1,10 +1,11 @@
 import pygame
 from config import *
 import logging
-import time
+
+from entity import Entity
 
 class CameraGroup(pygame.sprite.Group):
-    def __init__(self, surface):
+    def __init__(self, surface: pygame.Surface) -> None:
         super().__init__()
 
         self.displaySurface = pygame.display.get_surface()
@@ -27,21 +28,19 @@ class CameraGroup(pygame.sprite.Group):
         self.internalSurfOffset = pygame.math.Vector2()
         self.internalSurfOffset.x = self.internalSurfSize[0] // 2 - self.halfWidth
         self.internalSurfOffset.y = self.internalSurfSize[1] // 2 - self.halfHeight
-        
-        self.changedZoom = True
 
         self.keyBoardSpeed = 5
 
         self.groundSurface = surface
         self.groundRect = self.groundSurface.get_rect(topleft = (0,0))
 
-    def centerTargetCamera(self, target):
+    def centerTargetCamera(self, target: Entity) -> None:
         if target.rect.centerx > self.halfWidth and target.rect.centerx < WORLD_WIDTH - self.halfWidth:
             self.offset.x = target.rect.centerx - self.halfWidth
         if target.rect.centery > self.halfHeight and target.rect.centery < WORLD_HEIGHT - self.halfHeight:
             self.offset.y = target.rect.centery - self.halfHeight
 
-    def boxTargetCamera(self, target):
+    def boxTargetCamera(self, target: Entity) -> None:
         if target.rect.centerx > self.halfWidth and target.rect.centerx < WORLD_WIDTH - self.halfWidth:
             if target.rect.left < self.cameraRect.left:
                 self.cameraRect.left = target.rect.left
@@ -56,7 +55,7 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = self.cameraRect.left - self.cameraBorders["left"]
         self.offset.y = self.cameraRect.top - self.cameraBorders["top"]
 
-    def keyboardControl(self):
+    def keyboardControl(self) -> None:
         keys = pygame.key.get_pressed()
 
         #if self.offset.x - self.cameraBorders["left"] > 0:
@@ -75,14 +74,31 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = self.cameraRect.left - self.cameraBorders["left"]
         self.offset.y = self.cameraRect.top - self.cameraBorders["top"]
     
-    def zoomKeyboardControl(self):
+    def zoomKeyboardControl(self) -> None:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_q]:
             self.zoomScale +=0.1
         if keys[pygame.K_e]:
             self.zoomScale -=0.1
 
-    def customDraw(self, player = None, fps = None):
+    def scaleSurface(self) -> None:
+        self.scaledSurface = pygame.transform.scale(self.internalSurf, self.internalSurfSizeVector * self.zoomScale)
+        self.scaledRect = self.scaledSurface.get_rect(center = (self.halfWidth, self.halfHeight))
+        self.displaySurface.blit(self.scaledSurface, self.scaledRect)
+        logging.debug(f"changedZoom = {self.zoomScale}")
+        
+    def blitSprites(self) -> None:
+        for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
+            offsetPos = sprite.rect.topleft - self.offset + self.internalSurfOffset
+            self.internalSurf.blit(sprite.image, offsetPos)
+
+    def displayFPS(self) -> None:
+        if self.fps is not None:
+            font = pygame.font.SysFont("Verdana", 20)
+            self.displaySurface.blit (font.render((str(int(self.fps))), True, "black"), (10, 10))
+   
+    def customDraw(self, player: Entity = None, fps: float = None) -> None:
+        self.fps = fps
 
         #self.centerTargetCamera(player)
         #self.boxTargetCamera(player)
@@ -93,18 +109,10 @@ class CameraGroup(pygame.sprite.Group):
         groundOffset = self.groundRect.topleft - self.offset  + self.internalSurfOffset
         self.internalSurf.blit(self.groundSurface, groundOffset)
 
-        for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
-            offsetPos = sprite.rect.topleft - self.offset + self.internalSurfOffset
-            self.internalSurf.blit(sprite.image, offsetPos)
-            
-        self.scaledSurface = pygame.transform.scale(self.internalSurf, self.internalSurfSizeVector * self.zoomScale)
-        self.scaledRect = self.scaledSurface.get_rect(center = (self.halfWidth, self.halfHeight))
-        logging.debug(f"changedZoom = {self.zoomScale}")
-        self.displaySurface.blit(self.scaledSurface, self.scaledRect)
+        self.blitSprites()
+        self.scaleSurface()
+        self.displayFPS()
 
-
-        if fps is not None:
-            font = pygame.font.SysFont("Verdana", 20)
-            self.displaySurface.blit (font.render((str(int(fps))), True, "black"), (10, 10))
+        
         
         
