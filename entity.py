@@ -1,4 +1,5 @@
 import pygame
+from grid import Grid
 from spritesheet import Spritesheet
 from config import *
 import time
@@ -6,7 +7,7 @@ import logging
 
 class Entity(pygame.sprite.Sprite):
 
-    def __init__(self, name, sprite, pos, moveSpeed):
+    def __init__(self, name: str, sprite: pygame.Surface, pos: tuple, moveSpeed: int):
         pygame.sprite.Sprite.__init__(self)
         self.surface = pygame.Surface((WORLD_WIDTH, WORLD_HEIGHT), pygame.SRCALPHA)
         self.name = name
@@ -24,7 +25,7 @@ class Entity(pygame.sprite.Sprite):
         self.followCooldown = 0
         self.animationCounter = 0
 
-    def getAnimationDirection(self):
+    def getAnimationDirection(self) -> int:
         x, y = self.direction.x, self.direction.y
         #logging.debug(f"with {x}, {y} direction, ")
         if abs(x) > abs(y) - .15:
@@ -38,12 +39,12 @@ class Entity(pygame.sprite.Sprite):
             else:
                 return 1
     
-    def setAnimationFrame(self, animation):
+    def setAnimationFrame(self, animation: dict) -> None:
         if self.animationCounter >= list(animation.keys())[-1]: self.animationCounter = 0
         self.image = animation[self.animationCounter]
         self.animationCounter += 1
 
-    def getTargetDirection(self, pos):
+    def getTargetDirection(self, pos: tuple) -> pygame.math.Vector2:
         selfPos = pygame.math.Vector2(self.getPosition())
         targetPos = pygame.math.Vector2(pos)
         direction = pygame.math.Vector2(targetPos.x - selfPos.x, targetPos.y - selfPos.y)
@@ -52,21 +53,21 @@ class Entity(pygame.sprite.Sprite):
         else:
             return direction
 
-    def getTargetDistance(self, pos):
+    def getTargetDistance(self, pos: tuple) -> float:
         selfPos = pygame.math.Vector2(self.getPosition())
         targetPos = pygame.math.Vector2(pos)
         
         return selfPos.distance_to(targetPos)
 
     #this is used to find the angle difference between the straight-line path to the current target and the current direction of the followTarget
-    def getTargetAngleToCurrentTarget(self, target):
+    def getTargetAngleToCurrentTarget(self, target: pygame.sprite.Sprite) -> float:
         selfAngleToTarget = self.getTargetDirection(self.target)
         followTargetCurrentDirection = target.direction
         angle = abs(selfAngleToTarget.angle_to(followTargetCurrentDirection))
 
         return angle
 
-    def checkArrived(self):
+    def checkArrived(self) -> bool:
         if  self.distance < 10:
                 self.isMoving = False
                 self.target = None
@@ -74,18 +75,18 @@ class Entity(pygame.sprite.Sprite):
             self.isMoving = False
             self.target = None
 
-    def stopFollowing(self):
+    def stopFollowing(self) -> None:
         self.followCooldown = 60
         self.following = False
         self.followTarget = None
         self.image = self.defaultSprite
 
-    def startFollowing(self, target):
+    def startFollowing(self, target: pygame.sprite.Sprite) -> None:
         self.following = True
         self.followTarget = target
         self.image = self.attackSprite
 
-    def move(self):
+    def move(self) -> None:
         start = time.perf_counter()
         if not self.target == None:
             #logging.debug(f"Entity {self.name} has a target of {self.target}")
@@ -133,7 +134,7 @@ class Entity(pygame.sprite.Sprite):
         self.LOSCooldown -= 1
 
     
-    def getFollowTarget(self):
+    def getFollowTarget(self) -> None:
         if self.getStillFollowing(): 
             self.startFollowing(self.followTarget)
             return
@@ -153,7 +154,7 @@ class Entity(pygame.sprite.Sprite):
         else:
             self.stopFollowing()
 
-    def checkFollowLoopRecursive(self, original, visited = []):
+    def checkFollowLoopRecursive(self, original: pygame.sprite.Sprite, visited = []) -> bool:
         if self.followTarget is None:
             return False
         if self.followTarget is original or self.followTarget in visited:
@@ -162,7 +163,7 @@ class Entity(pygame.sprite.Sprite):
         visited.append(self)
         return self.followTarget.checkFollowLoopRecursive(original, visited)
 
-    def getStillFollowing(self):
+    def getStillFollowing(self) -> bool:
         if not self.following: 
             return False
 
@@ -181,7 +182,7 @@ class Entity(pygame.sprite.Sprite):
             self.stopFollowing()
             return False
 
-    def getLOS(self, pos):
+    def getLOS(self, pos: tuple) -> bool:
         if self.getTargetDistance(pos) > 500:
             self.LOSCooldown = 0
             return False
@@ -192,7 +193,7 @@ class Entity(pygame.sprite.Sprite):
             return False
         return True
 
-    def update(self, grid):
+    def update(self, grid: Grid) -> None:
 
         self.grid = grid
         self.cellCurrent = grid.getCell(self.getPosition())
@@ -202,22 +203,22 @@ class Entity(pygame.sprite.Sprite):
             self.isMoving = True
             self.move()
 
-    def setTarget(self, pos):
+    def setTarget(self, pos: tuple) -> None:
         if not self.isMoving:
             self.target = pos
 
-    def setSpriteGroup(self, group):
+    def setSpriteGroup(self, group: pygame.sprite.Group) -> None:
         self.group = group
         self.group.add(self)
 
-    def setPosition(self, position):
+    def setPosition(self, position: tuple) -> None:
         self.rect.center = position
     
-    def getPosition(self):
+    def getPosition(self) -> tuple:
         return self.rect.center
 
 class Roman(Entity):
-    def __init__(self, name, pos):
+    def __init__(self, name: str, pos: tuple) -> None:
         romanSpriteSheet = Spritesheet("assets/sprites/roman_test/blue/blue.png")
         self.defaultSprite = romanSpriteSheet.parseSprite("Walk/Walk_South_0.png").convert()
         
