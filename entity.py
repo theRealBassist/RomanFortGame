@@ -3,7 +3,6 @@ from grid import Grid
 from spritesheet import Spritesheet
 from config import *
 import time
-import logging
 
 class Entity(pygame.sprite.Sprite):
 
@@ -24,7 +23,7 @@ class Entity(pygame.sprite.Sprite):
         self.LOSCooldown = 0
         self.followCooldown = 0
         self.animationCounter = 0
-
+        
     def getAnimationDirection(self) -> int:
         x, y = self.direction.x, self.direction.y
         #logging.debug(f"with {x}, {y} direction, ")
